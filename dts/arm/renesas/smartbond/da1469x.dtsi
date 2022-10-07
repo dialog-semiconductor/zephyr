@@ -6,6 +6,7 @@
 #include <arm/armv8-m.dtsi>
 #include <mem.h>
 #include <zephyr/dt-bindings/gpio/gpio.h>
+#include <zephyr/dt-bindings/i2c/i2c.h>
 
 / {
 	cpus: cpus {
@@ -80,8 +81,34 @@
 		uart: uart@50020000 {
 			compatible = "renesas,smartbond-uart";
 			reg = <0x50020000 0x100>;
-			periph-clock-config = <0x01>;
+			periph-clock-config = <0x0001>;
 			interrupts = <5 0>;
+			status = "disabled";
+		};
+
+		uart2: uart@50020100 {
+			compatible = "renesas,smartbond-uart";
+			reg = <0x50020100 0x100>;
+			periph-clock-config = <0x0002>;
+			interrupts = <6 0>;
+			status = "disabled";
+		};
+
+		uart3: uart@50020200 {
+			compatible = "renesas,smartbond-uart";
+			reg = <0x50020200 0x100>;
+			periph-clock-config = <0x0008>;
+			interrupts = <7 0>;
+			status = "disabled";
+		};
+
+		i2c: i2c@50020600 {
+			compatible = "renesas,smartbond-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x50020600 0x100>;
+			periph-clock-config = <0x0200>;
+			interrupts = <8 0>;
 			status = "disabled";
 		};
 	};
