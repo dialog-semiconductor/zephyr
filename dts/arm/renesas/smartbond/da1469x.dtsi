@@ -5,6 +5,7 @@
 
 #include <arm/armv8-m.dtsi>
 #include <mem.h>
+#include <freq.h>
 #include <zephyr/dt-bindings/gpio/gpio.h>
 
 / {
@@ -16,6 +17,24 @@
 			compatible = "arm,cortex-m33f";
 			reg = <0>;
 			clock-frequency = <32000000>;
+		};
+	};
+
+	clocks {
+		rc32m: rc32m {
+			compatible = "fixed-clock";
+			clock-frequency = <DT_FREQ_M(32)>;
+			status = "disabled";
+		};
+		xtal32m: xtal32m {
+			compatible = "fixed-clock";
+			clock-frequency = <DT_FREQ_M(32)>;
+			status = "disabled";
+		};
+		pll: pll {
+			compatible = "fixed-clock";
+			clock-frequency = <DT_FREQ_M(96)>;
+			status = "disabled";
 		};
 	};
 
