@@ -113,3 +113,8 @@
 	pinctrl-0 = <&uart_default>;
 	pinctrl-names = "default";
 };
+
+zephyr_udc0: &usbd {
+	compatible = "renesas,smartbond-usbd";
+	status = "okay";
+};
