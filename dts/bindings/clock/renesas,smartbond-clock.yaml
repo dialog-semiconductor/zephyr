@@ -1,0 +1,12 @@
+# Copyright (c) 2022 Renesas Electronics Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+description: Renesas Smartbond clock control node
+
+compatible: "renesas,smartbodn-clock"
+
+include: base.yaml
+
+properties:
+    reg:
+      required: true
