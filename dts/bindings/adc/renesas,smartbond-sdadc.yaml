@@ -8,31 +8,30 @@ compatible: "renesas,smartbond-sdadc"
 include: [adc-controller.yaml, pinctrl-device.yaml]
 
 properties:
-    reg:
-      required: true
+  reg:
+    required: true
 
-    interrupts:
-      required: true
+  interrupts:
+    required: true
 
-    "#io-channel-cells":
-      const: 1
+  "#io-channel-cells":
+    const: 1
 
-    clock-freq:
-        type: int
-        required: false
-        description: |
-            SDADC clock frequency selector;
-        enum:
-            - 0 # 250 kHz
-            - 1 # 500 kHz
-            - 2 # 1 MHz (default)
-            - 3 # 2 MHz
+  clock-freq:
+    type: int
+    description: |
+      SDADC clock frequency selector;
+    enum:
+      - 0 # 250 kHz
+      - 1 # 500 kHz
+      - 2 # 1 MHz (default)
+      - 3 # 2 MHz
 
-    pinctrl-0:
-        required: false
+  pinctrl-0:
+    required: true
 
-    pinctrl-names:
-        required: false
+  pinctrl-names:
+    required: true
 
 io-channel-cells:
-    - input
+  - input

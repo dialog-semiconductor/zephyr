@@ -18,4 +18,3 @@ config ADC_SMARTBOND_SDADC
 	select ADC_CONFIGURABLE_INPUTS
 	help
 	  Enable support for ADC driver for Smartbond MCU series.
-
