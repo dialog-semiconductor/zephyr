@@ -7,6 +7,9 @@
 #include <zephyr/init.h>
 #include <zephyr/linker/linker-defs.h>
 #include <string.h>
+#include <zephyr/arch/arm/aarch32/cortex_m/cmsis.h>
+#include <zephyr/arch/arm/aarch32/nmi.h>
+#include <zephyr/arch/common/sys_io.h>
 #include <DA1469xAB.h>
 #include <da1469x_clock.h>
 #include <da1469x_otp.h>
@@ -36,6 +39,41 @@ void sys_arch_reboot(int type)
 	ARG_UNUSED(type);
 
 	NVIC_SystemReset();
+}
+
+static inline void write32_mask(uint32_t mask, uint32_t data, mem_addr_t addr)
+{
+	uint32_t val = sys_read32(addr);
+
+	sys_write32((val & (~mask)) | (data & mask), addr);
+}
+
+void da1469x_pd_apply_preferred(uint8_t pd)
+{
+	switch (pd) {
+	case MCU_PD_DOMAIN_AON:
+		if (sys_read32(0x500000f8) == 0x00008800) {
+			sys_write32(0x00007700, 0x500000f8);
+		}
+		write32_mask(0x00001000, 0x00001020, 0x50000050);
+		sys_write32(0x000000ca, 0x500000a4);
+		write32_mask(0x0003ffff, 0x041e6ef4, 0x50000064);
+		break;
+	case MCU_PD_DOMAIN_SYS:
+		write32_mask(0x00000c00, 0x003f6a78, 0x50040400);
+		write32_mask(0x000003ff, 0x00000002, 0x50040454);
+		break;
+	case MCU_PD_DOMAIN_TIM:
+		write32_mask(0x3ff00000, 0x000afd70, 0x50010000);
+		write32_mask(0x000000c0, 0x00000562, 0x50010010);
+		write32_mask(0x43c38002, 0x4801e6b6, 0x50010030);
+		write32_mask(0x007fff00, 0x7500a1a4, 0x50010034);
+		write32_mask(0x00000fff, 0x001e45c4, 0x50010038);
+		write32_mask(0x40000000, 0x40096255, 0x5001003c);
+		write32_mask(0x00c00000, 0x00c00000, 0x50010040);
+		write32_mask(0x000000ff, 0x00000180, 0x50010018);
+		break;
+	}
 }
 
 #if defined(CONFIG_BOOTLOADER_MCUBOOT)
@@ -120,28 +158,13 @@ static int renesas_da1469x_init(void)
 
 	/* Reset clock dividers to 0 */
 	CRG_TOP->CLK_AMBA_REG &= ~(CRG_TOP_CLK_AMBA_REG_HCLK_DIV_Msk |
-				CRG_TOP_CLK_AMBA_REG_PCLK_DIV_Msk);
-
-	CRG_TOP->PMU_CTRL_REG |= (CRG_TOP_PMU_CTRL_REG_TIM_SLEEP_Msk   |
-				CRG_TOP_PMU_CTRL_REG_PERIPH_SLEEP_Msk  |
-				CRG_TOP_PMU_CTRL_REG_COM_SLEEP_Msk     |
-				CRG_TOP_PMU_CTRL_REG_RADIO_SLEEP_Msk);
-
-	/* PDC should take care of PD_SYS */
+				   CRG_TOP_CLK_AMBA_REG_PCLK_DIV_Msk);
+	/* Enable all power domains except for radio */
+	CRG_TOP->PMU_CTRL_REG |= CRG_TOP_PMU_CTRL_REG_TIM_SLEEP_Msk |
+				 CRG_TOP_PMU_CTRL_REG_PERIPH_SLEEP_Msk |
+				 CRG_TOP_PMU_CTRL_REG_COM_SLEEP_Msk |
+				 CRG_TOP_PMU_CTRL_REG_RADIO_SLEEP_Msk;
 	CRG_TOP->PMU_CTRL_REG &= ~CRG_TOP_PMU_CTRL_REG_SYS_SLEEP_Msk;
-
-	/*
-	 *	Due to crosstalk issues any power rail can potentially
-	 *	issue a fake event. This is typically observed upon
-	 *	switching power sources, that is DCDC <--> LDOs <--> Retention LDOs.
-	 */
-	CRG_TOP->BOD_CTRL_REG &= ~(CRG_TOP_BOD_CTRL_REG_BOD_V14_EN_Msk |
-				CRG_TOP_BOD_CTRL_REG_BOD_V18F_EN_Msk   |
-				CRG_TOP_BOD_CTRL_REG_BOD_VDD_EN_Msk    |
-				CRG_TOP_BOD_CTRL_REG_BOD_V18P_EN_Msk   |
-				CRG_TOP_BOD_CTRL_REG_BOD_V18_EN_Msk    |
-				CRG_TOP_BOD_CTRL_REG_BOD_V30_EN_Msk    |
-				CRG_TOP_BOD_CTRL_REG_BOD_VBAT_EN_Msk);
 
 	da1469x_pdc_reset();
 
@@ -152,6 +175,11 @@ static int renesas_da1469x_init(void)
 	da1469x_pd_acquire(MCU_PD_DOMAIN_SYS);
 	da1469x_pd_acquire(MCU_PD_DOMAIN_TIM);
 	da1469x_pd_acquire(MCU_PD_DOMAIN_COM);
+
+	da1469x_clock_sys_xtal32m_init();
+	da1469x_clock_sys_xtal32m_enable();
+	da1469x_clock_sys_xtal32m_switch_safe();
+	da1469x_clock_sys_rc32m_disable();
 
 	return 0;
 }
