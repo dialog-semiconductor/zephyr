@@ -8,4 +8,14 @@ source "soc/arm/renesas_smartbond/*/Kconfig.defconfig.series"
 config PINCTRL
 	default y
 
+config BT_WAIT_NOP
+	default y if BT
+
+choice BT_RECV_CONTEXT
+	default BT_RECV_BLOCKING if BT
+endchoice
+
+config TEST_RANDOM_GENERATOR
+	default y if BT
+
 endif # SOC_FAMILY_SMARTBOND

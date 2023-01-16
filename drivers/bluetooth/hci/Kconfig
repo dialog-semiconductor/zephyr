@@ -102,6 +102,12 @@ config BT_PSOC6_BLESS
 	help
 	  PSOC6 BLESS driver with BLE Controller which operates in
 	  Single CPU mode.
+	  
+config BT_DA1469X
+	bool "DA1469x HCI driver"
+	help
+	  Bluetooth HCI driver for communication with CMAC core
+	  on DA1469x MCU.
 
 config BT_NO_DRIVER
 	bool "No default HCI driver"
