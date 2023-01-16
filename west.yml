@@ -210,7 +210,8 @@ manifest:
         - hal
     - name: hal_renesas
       path: modules/hal/renesas
-      revision: 1471ed3cbf501434a5f3df2f9df520c3bd8e0258
+      url: https://github.com/dialog-semiconductor/hal_renesas_public
+      revision: 69815acdddf92dc13d9a34cafed4466f3dcecac6
       groups:
         - hal
     - name: hal_rpi_pico
