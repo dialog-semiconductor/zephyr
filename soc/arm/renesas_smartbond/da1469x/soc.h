@@ -13,6 +13,11 @@ extern "C" {
 
 #include <DA1469xAB.h>
 
+int z_smartbond_sleep(void);
+void z_smartbond_wakeup_handler(void);
+void z_smartbond_wakeup(void);
+void z_smartbond_restore_state(void);
+
 #ifdef __cplusplus
 }
 #endif
