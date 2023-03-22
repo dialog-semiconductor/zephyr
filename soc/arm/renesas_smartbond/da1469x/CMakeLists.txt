@@ -7,3 +7,5 @@ zephyr_linker_sources(
 )
 zephyr_library()
 zephyr_library_sources(soc.c)
+zephyr_library_sources_ifdef(CONFIG_PM power.c)
+zephyr_library_sources_ifdef(CONFIG_PM sleep.S)
