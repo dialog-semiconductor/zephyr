@@ -129,6 +129,17 @@ Changes in this release
   * Touchscreen drivers converted to use the input APIs can use the
     :dtcompatible:`zephyr,kscan-input` driver to maintain Kscan compatilibity.
 
+* The declaration of :c:func:`main` has been changed from ``void
+  main(void)`` to ``int main(void)``. The main function is required to
+  return the value zero. All other return values are reserved. This aligns
+  Zephyr with the C and C++ language specification requirements for
+  "hosted" environments, avoiding compiler warnings and errors. These
+  compiler messages are generated when applications are built in "hosted"
+  mode (which means without the ``-ffreestanding`` compiler flag). As the
+  ``-ffreestanding`` flag is currently enabled unless the application is
+  using picolibc, only applications using picolibc will be affected by this
+  change at this time.
+
 Removed APIs in this release
 ============================
 
@@ -317,6 +328,10 @@ Drivers and Sensors
     selected by the driver to indicate that extra operations are supported.
     To enable extra operations user should select
     :kconfig:option:`CONFIG_FLASH_EX_OP_ENABLED`.
+  * nrf_qspi_nor: Replaced custom API function ``nrf_qspi_nor_base_clock_div_force``
+    with ``nrf_qspi_nor_xip_enable`` which apart from forcing the clock divider
+    prevents the driver from deactivating the QSPI peripheral so that the XIP
+    operation is actually possible.
 
 * FPGA
 
@@ -461,6 +476,14 @@ Trusted Firmware-M
 
 zcbor
 *****
+
+Updated from 0.6.0 to 0.7.0.
+Among other things, this update brings:
+
+* C++ improvements
+* float16 support
+* Improved docs
+* -Wall and -Wconversion compliance
 
 Documentation
 *************

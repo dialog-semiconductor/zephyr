@@ -83,7 +83,7 @@ manifest:
       groups:
         - hal
     - name: hal_nordic
-      revision: 79b4577543654666144f2d0bb9221ee2abfd54dc
+      revision: 140140ea047f441fe076d26f79eb54dc9a38bcb6
       path: modules/hal/nordic
       groups:
         - hal
@@ -124,7 +124,7 @@ manifest:
       groups:
         - hal
     - name: hal_st
-      revision: 60b149c2df9b7766737af243d2ee5f8c6bd83804
+      revision: 5948f7b3304f1628a45ee928cd607619a7f53bbb
       path: modules/hal/st
       groups:
         - hal
@@ -181,7 +181,7 @@ manifest:
       groups:
         - crypto
     - name: mcuboot
-      revision: 143485e35b8da7d234677d8920a28f5ea03f6d09
+      revision: 6902abba270c0fbcbe8ee3bb56fe39bc9acc2774
       path: bootloader/mcuboot
     - name: mipi-sys-t
       path: modules/debug/mipi-sys-t
@@ -197,10 +197,10 @@ manifest:
       groups:
         - tools
     - name: nrf_hw_models
-      revision: 7078310d522664b1612ebac93240b367c4c96299
+      revision: bad9877e997b2c2a78dd74eec8978181f4655d14
       path: modules/bsim_hw_models/nrf_hw_models
     - name: open-amp
-      revision: aedcc262f93bbb1b0c2f58026911575729b7465c
+      revision: 233fb29c52ffa7733ba132a2b5987a8201ba8ec6
       path: modules/lib/open-amp
     - name: openthread
       revision: 7bdcf8a5d49838ce6e3e227e2780e4f12c461330
@@ -209,7 +209,7 @@ manifest:
       path: modules/lib/picolibc
       revision: 93b5d5f2ad44867b60267417cd6d6250dbf68983
     - name: segger
-      revision: e2ff2200556e8a8f962921444275c04971a2bb3d
+      revision: 4bfaf28a11c3e5ec29badac744fab6d2f342749e
       path: modules/debug/segger
       groups:
         - debug
@@ -254,7 +254,7 @@ manifest:
       revision: e8920192b66db4f909eb9cd3f155d5245c1ae825
       path: modules/lib/uoscore-uedhoc
     - name: zcbor
-      revision: 0.6.0
+      revision: 67fd8bb88d3136738661fa8bb5f9989103f4599e
       path: modules/lib/zcbor
     - name: zscilib
       path: modules/lib/zscilib
