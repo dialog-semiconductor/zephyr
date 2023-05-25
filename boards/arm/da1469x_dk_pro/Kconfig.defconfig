@@ -8,4 +8,8 @@ if BOARD_DA1469X_DK_PRO
 config BOARD
 	default "da1469x_dk_pro"
 
+choice BT_HCI_BUS_TYPE
+	default BT_DA1469X if BT
+endchoice
+
 endif # BOARD_DA1469X_DK_PRO
