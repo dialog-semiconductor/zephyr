@@ -1,0 +1,154 @@
+/*
+ * Copyright (c) 2022 Renesas Electronics Corporation
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/dts-v1/;
+#include <renesas/smartbond/da14695.dtsi>
+#include "da14695_pico-pinctrl.dtsi"
+
+/ {
+	model = "DA14695 Pico";
+	compatible = "renesas,da14695_pico";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	chosen {
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,flash-controller = &flash_controller;
+		zephyr,code-partition = &slot0_partition;
+		zephyr,console = &uart;
+		zephyr,shell-uart = &uart;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		user_led: user_led {
+			gpios = <&gpio0 26 GPIO_ACTIVE_HIGH>;
+		};
+	};
+
+	buttons {
+		compatible = "gpio-keys";
+		boot_select: boot_select {
+			gpios = <&gpio1 10 GPIO_ACTIVE_LOW>;
+		};
+	};
+
+	aliases {
+		led0 = &user_led;
+		watchdog0 = &wdog;
+		mcuboot-led0 = &user_led;
+		mcuboot-button0 = &boot_select;
+	};
+
+	sysclk: system-clock {
+		compatible = "fixed-clock";
+		clock-frequency = <32000000>;
+		#clock-cells = <0>;
+	};
+};
+
+&flash0 {
+	reg = <0x16000000 DT_SIZE_M(1)>;
+
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		/*
+		 * Flash area from 0x0000 to 0x2400 is reserved
+		 * for product header added by flasher.
+		 */
+
+		boot_partition: partition@2400 {
+			label = "mcuboot";
+			reg = <0x000002400 0x00009c00>;
+		};
+		slot0_partition: partition@c000 {
+			label = "image-0";
+			reg = <0x0000c000 0x00076000>;
+		};
+		slot1_partition: partition@80000 {
+			label = "image-1";
+			reg = <0x00082000 0x00076000>;
+		};
+		storage_partition: partition@f8000 {
+			label = "storage";
+			reg = <0x000f8000 0x00008000>;
+		};
+	};
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&uart {
+	current-speed = <115200>;
+	status = "okay";
+	pinctrl-0 = <&uart_default>;
+	pinctrl-names = "default";
+};
+
+&i2c {
+	status = "okay";
+	pinctrl-0 = <&i2c_default>;
+	pinctrl-names = "default";
+	clock-frequency = < 100000 >;
+};
+
+&i2c2 {
+	status = "okay";
+	pinctrl-0 = <&i2c2_default>;
+	pinctrl-names = "default";
+	clock-frequency = < 100000 >;
+};
+
+&spi {
+	status = "okay";
+	pinctrl-0 = <&spi_controller>;
+	pinctrl-names = "default";
+};
+
+&spi2 {
+	status = "okay";
+	pinctrl-0 = <&spi2_controller>;
+	pinctrl-names = "default";
+};
+
+zephyr_udc0: &usbd {
+	compatible = "renesas,smartbond-usbd";
+	status = "okay";
+};
+
+
+&rc32m {
+	status = "disabled";
+};
+
+&xtal32m {
+	status = "okay";
+};
+
+&xtal32k {
+	status = "okay";
+};
+
+&lp_clk {
+	clock-src = <&xtal32k>;
+};
+
+&sys_clk {
+	clock-src = <&xtal32m>;
+};
+
+&pll {
+	status = "okay";
+};
