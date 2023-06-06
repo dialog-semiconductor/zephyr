@@ -7,6 +7,9 @@ choice
 
 config SOC_DA14699
 	bool "DA14699"
+	
+config SOC_DA14695
+	bool "DA14695"
 
 config SOC_DA14695
 	bool "DA14695"

@@ -1,0 +1,12 @@
+identifier: da14695_pico
+name: DA14695_PICO
+type: mcu
+arch: arm
+ram: 512
+toolchain:
+  - zephyr
+  - gnuarmemb
+  - xtools
+supported:
+  - gpio
+  - uart
