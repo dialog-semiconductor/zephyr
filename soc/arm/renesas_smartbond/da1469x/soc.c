@@ -30,6 +30,17 @@ LOG_MODULE_REGISTER(soc);
 #define FLASH_REGION_SIZE_05M     6
 #define FLASH_REGION_SIZE_025M    7
 
+#define VDD_SLEEP_LEVEL_0V750	0
+#define VDD_CLAMP_LEVEL_0V706	15
+#define V18_LEVEL_1V8		1
+#define V14_LEVEL_1V40		4
+#define V30_LEVEL_3V00		0
+
+#define POWER_CTRL_REG_SET(_field, _val) \
+	CRG_TOP->POWER_CTRL_REG = \
+	(CRG_TOP->POWER_CTRL_REG & ~CRG_TOP_POWER_CTRL_REG_ ## _field ## _Msk) | \
+	((_val) << CRG_TOP_POWER_CTRL_REG_ ## _field ## _Pos)
+
 #if defined(CONFIG_BOOTLOADER_MCUBOOT)
 #define MAGIC 0xaabbccdd
 static uint32_t z_renesas_cache_configured;
@@ -40,6 +51,50 @@ void sys_arch_reboot(int type)
 	ARG_UNUSED(type);
 
 	NVIC_SystemReset();
+}
+
+void
+z_smartbond_vdd_level_set(uint8_t vdd_level)
+{
+	POWER_CTRL_REG_SET(VDD_LEVEL, vdd_level);
+}
+
+static void z_smartbond_configure_power_rails(void)
+{
+	POWER_CTRL_REG_SET(LDO_3V0_MODE, 3);
+	POWER_CTRL_REG_SET(LDO_3V0_REF, 1);
+	POWER_CTRL_REG_SET(V30_LEVEL, V30_LEVEL_3V00);
+	POWER_CTRL_REG_SET(LDO_3V0_RET_ENABLE_ACTIVE, 0);
+	POWER_CTRL_REG_SET(LDO_3V0_RET_ENABLE_SLEEP, 1);
+	POWER_CTRL_REG_SET(CLAMP_3V0_VBAT_ENABLE, 0);
+
+	/* Enable V18, use LDO_IO in active mode, disable in sleep */
+	POWER_CTRL_REG_SET(V18_LEVEL, V18_LEVEL_1V8);
+	POWER_CTRL_REG_SET(LDO_1V8_RET_ENABLE_ACTIVE, 0);
+	POWER_CTRL_REG_SET(LDO_1V8_RET_ENABLE_SLEEP, 0);
+	POWER_CTRL_REG_SET(LDO_1V8_ENABLE, 1);
+
+	/* Enable V18P, use LDO_IO2 in active mode and LDO_IO_RET2 in sleep */
+	POWER_CTRL_REG_SET(LDO_1V8P_RET_ENABLE_ACTIVE, 0);
+	POWER_CTRL_REG_SET(LDO_1V8P_RET_ENABLE_SLEEP, 1);
+	POWER_CTRL_REG_SET(LDO_1V8P_ENABLE, 1);
+
+	/* Configure VDD to 1.2V if PLL is enabled, 0.9V otherwise. */
+	if (DT_NODE_HAS_STATUS(DT_NODELABEL(pll), okay)) {
+		POWER_CTRL_REG_SET(VDD_LEVEL, VDD_LEVEL_1V2);
+	} else {
+		POWER_CTRL_REG_SET(VDD_LEVEL, VDD_LEVEL_0V9);
+	}
+	/* Configure VDD to 0.75V in sleep.
+	 * Setting clamp to lower voltage than sleep LDO forces using LDO_CORE_RET in sleep.
+	 */
+	POWER_CTRL_REG_SET(VDD_SLEEP_LEVEL, VDD_SLEEP_LEVEL_0V750);
+	POWER_CTRL_REG_SET(VDD_CLAMP_LEVEL, VDD_CLAMP_LEVEL_0V706);
+	POWER_CTRL_REG_SET(LDO_CORE_RET_ENABLE_ACTIVE, 0);
+	POWER_CTRL_REG_SET(LDO_CORE_RET_ENABLE_SLEEP, 1);
+	POWER_CTRL_REG_SET(LDO_CORE_ENABLE, 1);
+
+	POWER_CTRL_REG_SET(V14_LEVEL, V14_LEVEL_1V40);
 }
 
 #if defined(CONFIG_BOOTLOADER_MCUBOOT)
@@ -178,6 +233,8 @@ static int renesas_da1469x_init(void)
 	da1469x_pd_acquire(MCU_PD_DOMAIN_TIM);
 	da1469x_pd_acquire(MCU_PD_DOMAIN_COM);
 
+
+	z_smartbond_configure_power_rails();
 	return 0;
 }
 

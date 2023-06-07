@@ -18,6 +18,11 @@ void z_smartbond_wakeup_handler(void);
 void z_smartbond_wakeup(void);
 void z_smartbond_restore_state(void);
 
+#define VDD_LEVEL_0V9		0
+#define VDD_LEVEL_1V2		3
+
+void z_smartbond_vdd_level_set(uint8_t vdd_level);
+
 #ifdef __cplusplus
 }
 #endif

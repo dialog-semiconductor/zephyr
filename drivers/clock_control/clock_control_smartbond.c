@@ -142,6 +142,7 @@ static inline int smartbond_clock_control_on(const struct device *dev,
 				da1469x_clock_sys_xtal32m_enable();
 				da1469x_clock_sys_xtal32m_wait_to_settle();
 			}
+			z_smartbond_vdd_level_set(VDD_LEVEL_1V2);
 			da1469x_clock_sys_pll_enable();
 		}
 		break;
@@ -196,6 +197,7 @@ static inline int smartbond_clock_control_off(const struct device *dev,
 		break;
 	case SMARTBOND_CLK_PLL96M:
 		da1469x_clock_sys_pll_disable();
+		z_smartbond_vdd_level_set(VDD_LEVEL_0V9);
 		break;
 	default:
 		return -ENOTSUP;
