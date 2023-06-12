@@ -204,8 +204,9 @@ manifest:
       groups:
         - hal
     - name: hal_renesas
+      url: https://github.com/dialog-semiconductor/hal_renesas_public.git
       path: modules/hal/renesas
-      revision: pull/2/head
+      revision: 69815acdddf92dc13d9a34cafed4466f3dcecac6
       groups:
         - hal
     - name: hal_rpi_pico
