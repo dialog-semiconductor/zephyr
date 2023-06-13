@@ -1,0 +1,32 @@
+# Smartbond Cryptographic Accelerator configuration options
+
+# Copyright (c) 2020 Markus Fuchs <markus.fuchs@de.sauter-bc.com>
+# SPDX-License-Identifier: Apache-2.0
+
+menuconfig CRYPTO_SMARTBOND
+	bool "Smartbond Cryptographic Accelerator driver"
+	default y
+	help
+	  Enable Smartbond Cryptographic Accelerator driver.
+
+config CRYPTO_SMARTBOND_MAX_SESSION
+	int "Maximum of sessions Smartbond crypto driver can handle"
+	default 1
+	depends on CRYPTO_SMARTBOND
+	help
+	  This can be used to tweak the amount of sessions the driver
+	  can handle in parallel.
+
+config CRYPTO_SMARTBOND_DRV_NAME
+	string "Device name for Smartbond crypto device"
+	default "CRYPTO_SMARTBOND"
+	depends on CRYPTO_SMARTBOND
+	help
+	  Device name for Smartbond crypto device.
+
+config CRYPTO_ASYNC
+	string "Enable ASYNC crypto operations."
+	default n
+	depends on CRYPTO_SMARTBOND
+	help
+	  Enable ASYNC crypto operations.
