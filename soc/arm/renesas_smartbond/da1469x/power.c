@@ -22,6 +22,18 @@ static int pdc_idx_combo;
 static int pdc_idx_sw_trigger;
 static bool wait_for_jtag;
 
+#define GPIO0_NGPIOS DT_PROP(DT_NODELABEL(gpio0), ngpios)
+#define GPIO1_NGPIOS DT_PROP(DT_NODELABEL(gpio1), ngpios)
+
+struct gpio_state_data {
+	uint32_t data0;
+	uint32_t mode0[GPIO0_NGPIOS];
+	uint32_t data1;
+	uint32_t mode1[GPIO1_NGPIOS];
+};
+
+static struct gpio_state_data gpio_state;
+
 static bool z_smartbond_is_sleep_allowed(void)
 {
 	if (wait_for_jtag) {
@@ -44,6 +56,59 @@ static bool z_smartbond_is_wakeup_by_jtag(void)
 	return (da1469x_pdc_is_pending(pdc_idx_combo) &&
 		!(NVIC->ISPR[0] & ((1 << CMAC2SYS_IRQn) | (1 << KEY_WKUP_GPIO_IRQn) |
 				   (1 << VBUS_IRQn))));
+}
+
+static void gpio_latch_inst(mem_addr_t data_reg, mem_addr_t mode_reg, mem_addr_t latch_reg,
+			    uint8_t ngpios, uint32_t *data, uint32_t *mode)
+{
+	uint8_t idx;
+
+	*data = sys_read32(data_reg);
+	for (idx = 0; idx < ngpios; idx++, mode_reg += 4) {
+		mode[idx] = sys_read32(mode_reg);
+	}
+	sys_write32(BIT_MASK(ngpios), latch_reg);
+
+}
+
+static void gpio_unlatch_inst(mem_addr_t data_reg, mem_addr_t mode_reg, mem_addr_t latch_reg,
+			      uint8_t ngpios, uint32_t data, uint32_t *mode)
+{
+	uint8_t idx;
+
+	sys_write32(data, data_reg);
+	for (idx = 0; idx < ngpios; idx++, mode_reg += 4) {
+		sys_write32(mode[idx], mode_reg);
+	}
+	sys_write32(BIT_MASK(ngpios), latch_reg);
+}
+
+static void gpio_latch(void)
+{
+	gpio_latch_inst(DT_REG_ADDR_BY_NAME(DT_NODELABEL(gpio0), data),
+			DT_REG_ADDR_BY_NAME(DT_NODELABEL(gpio0), mode),
+			DT_REG_ADDR_BY_NAME(DT_NODELABEL(gpio0), latch) + 8,
+			GPIO0_NGPIOS, &gpio_state.data0, gpio_state.mode0);
+	gpio_latch_inst(DT_REG_ADDR_BY_NAME(DT_NODELABEL(gpio1), data),
+			DT_REG_ADDR_BY_NAME(DT_NODELABEL(gpio1), mode),
+			DT_REG_ADDR_BY_NAME(DT_NODELABEL(gpio1), latch) + 8,
+			GPIO1_NGPIOS, &gpio_state.data1, gpio_state.mode1);
+
+	da1469x_pd_release(MCU_PD_DOMAIN_COM);
+}
+
+static void gpio_unlatch(void)
+{
+	da1469x_pd_acquire(MCU_PD_DOMAIN_COM);
+
+	gpio_unlatch_inst(DT_REG_ADDR_BY_NAME(DT_NODELABEL(gpio0), data),
+			  DT_REG_ADDR_BY_NAME(DT_NODELABEL(gpio0), mode),
+			  DT_REG_ADDR_BY_NAME(DT_NODELABEL(gpio0), latch) + 4,
+			  GPIO0_NGPIOS, gpio_state.data0, gpio_state.mode0);
+	gpio_unlatch_inst(DT_REG_ADDR_BY_NAME(DT_NODELABEL(gpio1), data),
+			  DT_REG_ADDR_BY_NAME(DT_NODELABEL(gpio1), mode),
+			  DT_REG_ADDR_BY_NAME(DT_NODELABEL(gpio1), latch) + 4,
+			  GPIO1_NGPIOS, gpio_state.data1, gpio_state.mode1);
 }
 
 /*
@@ -70,6 +135,8 @@ __weak void pm_state_set(enum pm_state state, uint8_t substate_id)
 			break;
 		}
 
+		gpio_latch();
+
 		da1469x_pdc_set(pdc_idx_sw_trigger);
 
 		/* PD_SYS will not be disabled here until we enter deep sleep - don't wait */
@@ -81,6 +148,8 @@ __weak void pm_state_set(enum pm_state state, uint8_t substate_id)
 			da1469x_pdc_ack_all_m33();
 			slept = z_smartbond_sleep();
 		}
+
+		gpio_unlatch();
 
 		break;
 	default:
