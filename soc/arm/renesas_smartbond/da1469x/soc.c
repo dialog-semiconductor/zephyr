@@ -176,6 +176,11 @@ static int renesas_da1469x_init(void)
 	da1469x_pd_init();
 	da1469x_pd_acquire(MCU_PD_DOMAIN_SYS);
 	da1469x_pd_acquire(MCU_PD_DOMAIN_TIM);
+
+	/* Enable PD_COM for GPIO control. This reference is controlled by PM.
+	 * References for other peripherals in PD_COM are controlled by their
+	 * respective drivers.
+	 */
 	da1469x_pd_acquire(MCU_PD_DOMAIN_COM);
 
 	return 0;
