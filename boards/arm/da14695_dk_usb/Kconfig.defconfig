@@ -8,4 +8,8 @@ if BOARD_DA14695_DK_USB
 config BOARD
 	default "da14695_dk_usb"
 
+choice BT_HCI_BUS_TYPE
+	default BT_DA1469X if BT
+endchoice
+
 endif # BOARD_DA14695_DK_USB
