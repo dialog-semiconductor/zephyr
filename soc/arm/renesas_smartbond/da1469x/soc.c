@@ -35,11 +35,51 @@ LOG_MODULE_REGISTER(soc);
 static uint32_t z_renesas_cache_configured;
 #endif
 
+#if defined(CONFIG_PM)
+struct dcdc_regs {
+	uint32_t v18;
+	uint32_t v18p;
+	uint32_t vdd;
+	uint32_t v14;
+	uint32_t ctrl1;
+};
+
+static struct dcdc_regs dcdc_state;
+#endif
+
 void sys_arch_reboot(int type)
 {
 	ARG_UNUSED(type);
 
 	NVIC_SystemReset();
+}
+
+void z_smartbond_restore_dcdc_state(void)
+{
+	/*
+	 * Enabling DCDC while VBAT is below 2.5 V renders system unstable even
+	 * if VBUS is available. Enable DCDC only if VBAT is above minimal value.
+	 */
+	if (CRG_TOP->ANA_STATUS_REG & CRG_TOP_ANA_STATUS_REG_COMP_VBAT_HIGH_Msk) {
+#if defined(CONFIG_PM)
+		DCDC->DCDC_V18_REG = dcdc_state.v18;
+		DCDC->DCDC_V18P_REG = dcdc_state.v18p;
+		DCDC->DCDC_VDD_REG = dcdc_state.vdd;
+		DCDC->DCDC_V14_REG = dcdc_state.v14;
+		DCDC->DCDC_CTRL1_REG = dcdc_state.ctrl1;
+#endif
+	}
+}
+
+void z_smartbond_store_dcdc_state(void)
+{
+#if defined(CONFIG_PM)
+	dcdc_state.v18 = DCDC->DCDC_V18_REG;
+	dcdc_state.v18p = DCDC->DCDC_V18P_REG;
+	dcdc_state.vdd = DCDC->DCDC_VDD_REG;
+	dcdc_state.v14 = DCDC->DCDC_V14_REG;
+	dcdc_state.ctrl1 = DCDC->DCDC_CTRL1_REG;
+#endif
 }
 
 #if defined(CONFIG_BOOTLOADER_MCUBOOT)

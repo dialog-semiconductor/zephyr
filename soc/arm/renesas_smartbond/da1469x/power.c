@@ -141,6 +141,7 @@ __weak void pm_state_set(enum pm_state state, uint8_t substate_id)
 			__WFI();
 			slept = 0;
 		} else {
+			z_smartbond_store_dcdc_state();
 			da1469x_pdc_ack_all_m33();
 			slept = z_smartbond_sleep();
 		}
@@ -155,6 +156,8 @@ __weak void pm_state_set(enum pm_state state, uint8_t substate_id)
 				GPREG->SET_FREEZE_REG = GPREG_SET_FREEZE_REG_FRZ_SYS_WDOG_Msk;
 				SYS_WDOG->WATCHDOG_REG = SYS_WDOG_WATCHDOG_REG_WDOG_VAL_Msk;
 			}
+
+			z_smartbond_restore_dcdc_state();
 
 			da1469x_pd_acquire(MCU_PD_DOMAIN_SYS);
 
