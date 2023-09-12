@@ -1,0 +1,11 @@
+identifier: da1470x_dk_pro
+name: DA1470X_DK_PRO
+type: mcu
+arch: arm
+ram: 1536
+toolchain:
+  - zephyr
+  - gnuarmemb
+  - xtools
+supported:
+  - gpio

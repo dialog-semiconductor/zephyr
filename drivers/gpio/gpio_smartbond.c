@@ -12,7 +12,7 @@
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/irq.h>
 
-#include <DA1469xAB.h>
+#include <DA1470x-00.h>
 
 #define GPIO_MODE_RESET		0x200
 

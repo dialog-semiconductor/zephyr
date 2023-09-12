@@ -12,7 +12,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/spinlock.h>
 #include <zephyr/sys/byteorder.h>
-#include <DA1469xAB.h>
+#include <DA1470x-00.h>
 #include <zephyr/irq.h>
 
 #define IIR_NO_INTR		1
@@ -163,7 +163,8 @@ static int uart_smartbond_configure(const struct device *dev,
 
 	key = k_spin_lock(&data->lock);
 
-	CRG_COM->SET_CLK_COM_REG = config->periph_clock_config;
+	//CRG_COM->SET_CLK_COM_REG = config->periph_clock_config; //old
+	CRG_SNC->SET_CLK_SNC_REG = config->periph_clock_config;  //new
 
 	config->regs->UART2_SRR_REG = UART2_UART2_SRR_REG_UART_UR_Msk |
 				      UART2_UART2_SRR_REG_UART_RFR_Msk |

@@ -5,7 +5,7 @@
  */
 
 #include <zephyr/drivers/pinctrl.h>
-#include <DA1469xAB.h>
+#include <DA1470x-00.h>
 
 /** Utility macro to retrieve starting mode register and pin count for GPIO port from DT */
 #define GPIO_PORT_ENTRY(nodelabel)							\

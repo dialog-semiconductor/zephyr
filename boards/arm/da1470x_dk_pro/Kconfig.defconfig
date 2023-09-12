@@ -1,0 +1,11 @@
+# DA1470x series Development Kit Pro board configuration
+
+# Copyright (c) 2023 Renesas Electronics Corporation and/or its affiliates
+# SPDX-License-Identifier: Apache-2.0
+
+if BOARD_DA1470X_DK_PRO
+
+config BOARD
+	default "da1470x_dk_pro"
+
+endif # BOARD_DA1470X_DK_PRO

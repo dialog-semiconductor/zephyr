@@ -1,0 +1,90 @@
+/*
+ * Copyright (c) 2023 Renesas Electronics Corporation and/or its affiliates
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/dts-v1/;
+#include <renesas/smartbond/da14706.dtsi>
+#include "da1470x_dk_pro-pinctrl.dtsi"
+
+/ {
+	model = "DA1470x series Development Kit Pro";
+	compatible = "renesas,da1470x_dk_pro";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	chosen {
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,console = &uart;
+		zephyr,shell-uart = &uart;
+        //zephyr,code-partition = &slot0_partition;
+	};
+
+	
+	
+
+	leds {
+		compatible = "gpio-leds";
+		red_led: led_0 {
+			gpios = <&gpio1 1 GPIO_ACTIVE_HIGH>;
+		};
+	};
+
+	aliases {
+		led0 = &red_led;
+	};
+	
+	sysclk: system-clock {
+		compatible = "fixed-clock";
+		clock-frequency = <32000000>;
+		#clock-cells = <0>;
+	};
+};
+
+
+&flash0 {
+	reg = <0x18000000 DT_SIZE_M(1)>;
+
+// 	// partitions {
+// 	// 	compatible = "fixed-partitions";
+// 	// 	#address-cells = <1>;
+// 	// 	#size-cells = <1>;
+
+// 	// 	boot_partition: partition@2400 {
+// 	// 		label = "mcuboot";
+// 	// 		reg = <0x000002400 0x00005c00>;
+// 	// 	};
+// 	// 	slot0_partition: partition@8000 {
+// 	// 		label = "image-0";
+// 	// 		reg = <0x00008000 0x00060000>;
+// 	// 	};
+// 	// 	slot1_partition: partition@68000 {
+// 	// 		label = "image-1";
+// 	// 		reg = <0x00068000 0x00060000>;
+// 	// 	};
+// 	// 	scratch_partition: partition@c8000 {
+// 	// 		label = "image-scratch";
+// 	// 		reg = <0x000c8000 0x00010000>;
+// 	// 	};
+// 	// 	storage_partition: partition@dc000 {
+// 	// 		label = "storage";
+// 	// 		reg = <0x000dc000 0x00004000>;
+// 	// 	};
+// 	// };
+ };
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&uart {
+	current-speed = <115200>;
+	status = "okay";
+	pinctrl-0 = <&uart_default>;
+	pinctrl-names = "default";
+};
