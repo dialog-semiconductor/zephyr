@@ -44,4 +44,4 @@ typedef struct smartbond_pinctrl_soc_pin pinctrl_soc_pin_t;
 #define SMARTBOND_GET_PIN(pinmux) \
 	(((pinmux) >> SMARTBOND_PINMUX_PIN_POS) & SMARTBOND_PINMUX_PIN_MASK)
 
-#endif /* ZEPHYR_SOC_ARM_RENESAS_SMARTBOND_DA1469X_PINCTRL_SOC_H_ */
+#endif /* ZEPHYR_SOC_ARM_RENESAS_SMARTBOND_DA1470X_PINCTRL_SOC_H_ */

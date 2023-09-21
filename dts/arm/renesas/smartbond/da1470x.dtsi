@@ -11,6 +11,11 @@
 #include <zephyr/dt-bindings/pinctrl/smartbond-pinctrl.h> //added
 
 / {
+	chosen {
+		//zephyr,entropy = &trng;
+		zephyr,flash-controller = &flash_controller;
+	};
+
 	cpus: cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -22,25 +27,89 @@
 		};
 	};
 
+	// crg {
+	// 	osc: osc {
+	// 		// rc32k: rc32k {
+	// 		// 	compatible = "renesas,smartbond-lp-osc";
+	// 		// 	clock-frequency = <DT_FREQ_K(32)>;
+	// 		// 	calibration-interval = <1>;
+	// 		// 	#clock-cells = <0>;
+	// 		// 	status = "okay";
+	// 		// };
+	// 		xtal32k: xtal32k {
+	// 			compatible = "renesas,smartbond-lp-osc";
+	// 			clock-frequency = <32768>;
+	// 			settle-time = <8000>;
+	// 			#clock-cells = <0>;
+	// 			status = "disabled";
+	// 		};
+	// 		// rcx: rcx {
+	// 		// 	compatible = "renesas,smartbond-lp-osc";
+	// 		// 	clock-frequency = <DT_FREQ_K(15)>;
+	// 		// 	calibration-interval = <1>;
+	// 		// 	#clock-cells = <0>;
+	// 		// 	status = "disabled";
+	// 		// };
+	// 		// rc32m: rc32m {
+	// 		// 	compatible = "fixed-clock";
+	// 		// 	clock-frequency = <DT_FREQ_M(32)>;
+	// 		// 	#clock-cells = <0>;
+	// 		// 	status = "okay";
+	// 		// };
+	// 		xtal32m: xtal32m {
+	// 			compatible = "fixed-clock";
+	// 			clock-frequency = <DT_FREQ_M(32)>;
+	// 			#clock-cells = <0>;
+	// 			status = "disabled";
+	// 		};
+	// 		// pll: pll {
+	// 		// 	compatible = "fixed-clock";
+	// 		// 	clock-frequency = <DT_FREQ_M(96)>;
+	// 		// 	#clock-cells = <0>;
+	// 		// 	status = "disabled";
+	// 		// };
+	// 	};
+	// 	divn_clk: divn_clk {
+	// 		compatible = "fixed-clock";
+	// 		clock-frequency = <DT_FREQ_M(32)>;
+	// 		#clock-cells = <0>;
+	// 		status = "okay";
+	// 	};
+	// 	sys_clk: sys_clk {
+	// 		compatible = "renesas,smartbond-sys-clk";
+	// 		status = "okay";
+	// 		clock-src = <&xtal32m>;
+	// 		status = "okay";
+	// 	};
+	// 	lp_clk: lp_clk {
+	// 		compatible = "renesas,smartbond-lp-clk";
+	// 		clock-src = <&xtal32k>;
+	// 		status = "okay";
+	// 	};
+	// };
+
 	soc {
 		sram0: memory@20000000 {
 			compatible = "mmio-sram";
 		};
 
 		qspif: memory@18000000{
-		compatible = "zephyr,memory-region";
+			compatible = "zephyr,memory-region";
 			reg = <0x18000000 DT_SIZE_K(131072)>; //check if ok
 			zephyr,memory-region = "QSPIF";
 		};
 
-		flash_controller: flash-controller@36000000 {
+		flash_controller: flash-controller@38000000 {
 			compatible = "renesas,smartbond-flash-controller";
-			reg = <0x36000000 0x130>;
+			reg = <0x38000000 0x130>;
 
 			#address-cells = <1>;
 			#size-cells = <1>;
 
-			flash0: flash@18000000 {
+			read-cs-idle-delay = <50>;
+			erase-cs-idle-delay = <50>;
+
+			flash0: flash@16000000 {
 				compatible = "soc-nv-flash";
 				erase-block-size = <4096>; //unknown
 				write-block-size = <1>;
