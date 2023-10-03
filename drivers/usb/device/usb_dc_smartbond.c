@@ -19,9 +19,9 @@
 #include <zephyr/kernel.h>
 #include <zephyr/usb/usb_device.h>
 
-#include <DA1469xAB.h>
+#include <DA1470x-00.h>
 #include <soc.h>
-#include <da1469x_clock.h>
+#include <da1470x_clock.h>
 
 #include <zephyr/logging/log.h>
 #include <zephyr/drivers/gpio.h>

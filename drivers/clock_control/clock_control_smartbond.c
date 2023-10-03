@@ -10,7 +10,10 @@
 #include <zephyr/drivers/clock_control.h>
 #include <zephyr/drivers/clock_control/smartbond_clock_control.h>
 #include <zephyr/logging/log.h>
+
+#ifdef CONFIG_SOC_SERIES_DA1469X
 #include <da1469x_clock.h>
+#endif
 
 LOG_MODULE_REGISTER(clock_control, CONFIG_CLOCK_CONTROL_LOG_LEVEL);
 

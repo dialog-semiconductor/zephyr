@@ -15,7 +15,15 @@
 #include <zephyr/device.h>
 #include <zephyr/drivers/flash.h>
 #include <zephyr/sys/byteorder.h>
+
+
+#ifdef CONFIG_SOC_SERIES_DA1469X
+#include <DA1469xAB.h>
+#endif
+
+#ifdef CONFIG_SOC_SERIES_DA1470X
 #include <DA1470x-00.h>
+#endif
 
 #define FLASH_ERASE_SIZE	DT_PROP(SOC_NV_FLASH_NODE, erase_block_size)
 #define FLASH_PAGE_SIZE		256
@@ -186,12 +194,20 @@ static __ramfunc int flash_smartbond_write(const struct device *dev,
 
 	qspic_write(offset, data, size);
 
+
+	#ifdef CONFIG_SOC_SERIES_DA1469X
+	CACHE->CACHE_CTRL1_REG |= CACHE_CACHE_CTRL1_REG_CACHE_FLUSH_Msk;
+	#endif
+
+	#ifdef CONFIG_SOC_SERIES_DA1470X
 	QSPIC->QSPIC_CTRLMODE_REG = ctrlmode;
-		//todo fix and check
 	CRG_TOP->SYS_CTRL_REG &= ~CRG_TOP_SYS_CTRL_REG_CACHERAM_MUX_Msk;
 	CRG_TOP->SYS_CTRL_REG |= CRG_TOP_SYS_CTRL_REG_CACHERAM_MUX_Msk;
 
 	CACHE->CACHE_CTRL2_REG &= ~CACHE_CACHE_CTRL2_REG_CACHE_FLUSHED_Msk;
+	#endif
+
+
 	irq_unlock(key);
 
 	return 0;
@@ -243,11 +259,17 @@ static __ramfunc int flash_smartbond_erase(const struct device *dev, off_t offse
 
 	QSPIC->QSPIC_CTRLMODE_REG = ctrlmode;
 	
-		//todo fix and check
+	#ifdef CONFIG_SOC_SERIES_DA1469X
+	CACHE->CACHE_CTRL1_REG |= CACHE_CACHE_CTRL1_REG_CACHE_FLUSH_Msk;
+	#endif
+
+	#ifdef CONFIG_SOC_SERIES_DA1470X
+	QSPIC->QSPIC_CTRLMODE_REG = ctrlmode;
 	CRG_TOP->SYS_CTRL_REG &= ~CRG_TOP_SYS_CTRL_REG_CACHERAM_MUX_Msk;
 	CRG_TOP->SYS_CTRL_REG |= CRG_TOP_SYS_CTRL_REG_CACHERAM_MUX_Msk;
-	
+
 	CACHE->CACHE_CTRL2_REG &= ~CACHE_CACHE_CTRL2_REG_CACHE_FLUSHED_Msk;
+	#endif
 	irq_unlock(key);
 
 	return 0;

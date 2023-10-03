@@ -148,6 +148,19 @@
 				reg-names = "data", "mode", "latch", "wkup";
 				interrupts = <15 0>;
 			};
+
+			gpio2: gpio@50050108 {
+				compatible = "renesas,smartbond-gpio";
+				gpio-controller;
+				#gpio-cells = <2>;
+				ngpios = <15>;
+				reg = <0x50050108 20
+					   0x50050224 60
+					   0x50000088 12
+					   0x50000910 36>;
+				reg-names = "data", "mode", "latch", "wkup";
+				interrupts = <16 0>;
+			};
 		};
 
 		uart: uart@50020000 {
@@ -157,6 +170,64 @@
 			interrupts = <29 0>;
 			status = "disabled";
 		};
+
+		// i2c: i2c@50020600 {
+		// 	compatible = "renesas,smartbond-i2c";
+		// 	#address-cells = <1>;
+		// 	#size-cells = <0>;
+		// 	reg = <0x50020600 0x100>;
+		// 	periph-clock-config = <0x0200>;
+		// 	interrupts = <35 0>;
+		// 	status = "disabled";
+		// };
+
+		// i2c2: i2c@50020700 {
+		// 	compatible = "renesas,smartbond-i2c";
+		// 	#address-cells = <1>;
+		// 	#size-cells = <0>;
+		// 	reg = <0x50020700 0x100>;
+		// 	periph-clock-config = <0x0800>;
+		// 	interrupts = <36 0>;
+		// };
+
+		// i2c3: i2c@50020500 {
+		// 	compatible = "renesas,smartbond-i2c";
+		// 	#address-cells = <1>;
+		// 	#size-cells = <0>;
+		// 	reg = <0x50020500 0x100>;
+		// 	periph-clock-config = <0x0800>;
+		// 	interrupts = <37 0>;
+		// };
+
+		// spi: spi@50020300 {
+		// 	compatible = "renesas,smartbond-spi";
+		// 	#address-cells = <1>;
+		// 	#size-cells = <0>;
+		// 	reg = <0x50020300 0x100>;
+		// 	periph-clock-config = <0x20>;
+		// 	interrupts = <32 0>;
+		// 	status = "disabled";
+		// };
+
+		// spi2: spi@50020400 {
+		// 	compatible = "renesas,smartbond-spi";
+		// 	#address-cells = <1>;
+		// 	#size-cells = <0>;
+		// 	reg = <0x50020400 0x100>;
+		// 	periph-clock-config = <0x80>;
+		// 	interrupts = <33 0>;
+		// 	status = "disabled";
+		// };
+
+		// spi3: spi@50020200 {
+		// 	compatible = "renesas,smartbond-spi";
+		// 	#address-cells = <1>;
+		// 	#size-cells = <0>;
+		// 	reg = <0x50020200 0x100>;
+		// 	periph-clock-config = <0x80>;
+		// 	interrupts = <34 0>;
+		// 	status = "disabled";
+		// };
 	};
 };
 

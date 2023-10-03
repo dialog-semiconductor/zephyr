@@ -12,7 +12,14 @@
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/irq.h>
 
+
+#ifdef CONFIG_SOC_SERIES_DA1469X
+#include <DA1469xAB.h>
+#endif
+
+#ifdef CONFIG_SOC_SERIES_DA1470X
 #include <DA1470x-00.h>
+#endif
 
 #define GPIO_MODE_RESET		0x200
 
@@ -77,12 +84,21 @@ static void gpio_smartbond_wkup_init(void)
 	 */
 	if (!wkup_init) {
 		WAKEUP->WKUP_CTRL_REG = 0;
-		WAKEUP->WKUP_CLEAR_P0_REG = 0xffffffff;
-		WAKEUP->WKUP_CLEAR_P1_REG = 0xffffffff;
+
+		WAKEUP->WKUP_CLEAR_P0_REG = 0xffffffff;	
 		WAKEUP->WKUP_SELECT_P0_REG = 0;
-		WAKEUP->WKUP_SELECT_P1_REG = 0;
 		WAKEUP->WKUP_SEL_GPIO_P0_REG = 0;
+
+		WAKEUP->WKUP_CLEAR_P1_REG = 0xffffffff;
+		WAKEUP->WKUP_SELECT_P1_REG = 0;
 		WAKEUP->WKUP_SEL_GPIO_P1_REG = 0;
+		
+		#ifdef CONFIG_SOC_SERIES_DA1470X
+		WAKEUP->WKUP_CLEAR_P2_REG = 0xffffffff;
+		WAKEUP->WKUP_SELECT_P2_REG = 0;
+		WAKEUP->WKUP_SEL_GPIO_P2_REG = 0;
+		#endif
+
 		WAKEUP->WKUP_RESET_IRQ_REG = 0;
 
 		CRG_TOP->CLK_TMR_REG |= CRG_TOP_CLK_TMR_REG_WAKEUPCT_ENABLE_Msk;

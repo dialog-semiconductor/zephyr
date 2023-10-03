@@ -5,7 +5,14 @@
  */
 
 #include <zephyr/drivers/pinctrl.h>
+
+#ifdef CONFIG_SOC_SERIES_DA1469X
+#include <DA1469xAB.h>
+#endif
+
+#ifdef CONFIG_SOC_SERIES_DA1470X
 #include <DA1470x-00.h>
+#endif
 
 /** Utility macro to retrieve starting mode register and pin count for GPIO port from DT */
 #define GPIO_PORT_ENTRY(nodelabel)							\
@@ -20,6 +27,10 @@ struct gpio_port {
 static const struct gpio_port smartbond_gpio_ports[] = {
 	GPIO_PORT_ENTRY(gpio0),
 	GPIO_PORT_ENTRY(gpio1),
+
+	#ifdef CONFIG_SOC_SERIES_DA1470X
+	GPIO_PORT_ENTRY(gpio2),
+	#endif
 };
 
 static void pinctrl_configure_pin(const pinctrl_soc_pin_t *pin)

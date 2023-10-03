@@ -7,7 +7,11 @@
 #define DT_DRV_COMPAT renesas_smartbond_adc
 
 #define ADC_CONTEXT_USES_KERNEL_TIMER
+
+#ifdef CONFIG_SOC_SERIES_DA1469X
 #include <DA1469xAB.h>
+#endif
+
 #include "adc_context.h"
 #include <zephyr/dt-bindings/adc/smartbond-adc.h>
 

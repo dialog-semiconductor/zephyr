@@ -12,7 +12,10 @@
 #include <zephyr/sys/atomic.h>
 
 #include <zephyr/logging/log.h>
+
+#ifdef CONFIG_SOC_SERIES_DA1469X
 #include <DA1469xAB.h>
+#endif
 
 LOG_MODULE_REGISTER(counter_timer, CONFIG_COUNTER_LOG_LEVEL);
 

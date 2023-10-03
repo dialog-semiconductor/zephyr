@@ -9,7 +9,9 @@
 #include <soc.h>
 #include <zephyr/irq.h>
 #include <zephyr/sys/barrier.h>
+#ifdef CONFIG_SOC_SERIES_DA1469X
 #include <DA1469xAB.h>
+#endif
 
 #define DT_DRV_COMPAT renesas_smartbond_trng
 
