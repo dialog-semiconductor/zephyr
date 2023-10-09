@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
+zephyr_syscall_header_ifdef(
+  CONFIG_DMA_SMARTBOND
+  ${ZEPHYR_BASE}/include/zephyr/drivers/dma/dma_smartbond.h
+)
+
 zephyr_syscall_header(${ZEPHYR_BASE}/include/zephyr/drivers/dma.h)
 
 zephyr_library()
@@ -34,3 +39,4 @@ zephyr_library_sources_ifdef(CONFIG_DMA_XMC4XXX		dma_xmc4xxx.c)
 zephyr_library_sources_ifdef(CONFIG_DMA_RPI_PICO	dma_rpi_pico.c)
 zephyr_library_sources_ifdef(CONFIG_MCUX_PXP		dma_mcux_pxp.c)
 zephyr_library_sources_ifdef(CONFIG_DMA_MCUX_SMARTDMA	dma_mcux_smartdma.c)
+zephyr_library_sources_ifdef(CONFIG_DMA_SMARTBOND   dma_smartbond.c)
