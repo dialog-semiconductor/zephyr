@@ -1,0 +1,6 @@
+sample:
+  name: DMA Sample
+tests:
+  sample.drivers.dma:
+    tags: dma
+    harness: console
