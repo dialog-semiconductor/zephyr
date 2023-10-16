@@ -1,0 +1,6 @@
+sample:
+  name: RTC Sample
+tests:
+  sample.drivers.rtc:
+    tags: rtc
+    harness: console
