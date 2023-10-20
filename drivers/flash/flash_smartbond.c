@@ -44,21 +44,21 @@ static bool range_is_valid(off_t offset, uint32_t size)
 
 static ALWAYS_INLINE void qspic_data_write8(uint8_t data)
 {
-	volatile uint8_t *reg8 = (uint8_t *)&QSPIC->QSPIC_WRITEDATA_REG;
+	volatile uint8_t *reg8 = (uint8_t *)&OQSPIF->OQSPIF_WRITEDATA_REG;
 
 	*reg8 = data;
 }
 
 static ALWAYS_INLINE void qspic_data_write32(uint32_t data)
 {
-	volatile uint32_t *reg32 = (uint32_t *)&QSPIC->QSPIC_WRITEDATA_REG;
+	volatile uint32_t *reg32 = (uint32_t *)&OQSPIF->OQSPIF_WRITEDATA_REG;
 
 	*reg32 = data;
 }
 
 static ALWAYS_INLINE uint8_t qspic_data_read8(void)
 {
-	volatile uint8_t *reg8 = (uint8_t *)&QSPIC->QSPIC_READDATA_REG;
+	volatile uint8_t *reg8 = (uint8_t *)&OQSPIF->OQSPIF_READDATA_REG;
 
 	return *reg8;
 }
@@ -67,10 +67,10 @@ static __ramfunc uint8_t qspic_read_status(void)
 {
 	uint8_t status;
 
-	QSPIC->QSPIC_CTRLBUS_REG = QSPIC_QSPIC_CTRLBUS_REG_QSPIC_EN_CS_Msk;
+	OQSPIF->OQSPIF_CTRLBUS_REG = OQSPIF_OQSPIF_CTRLBUS_REG_OSPIC_EN_CS_Msk;
 	qspic_data_write8(0x05);
 	status = qspic_data_read8();
-	QSPIC->QSPIC_CTRLBUS_REG = QSPIC_QSPIC_CTRLBUS_REG_QSPIC_DIS_CS_Msk;
+	OQSPIF->OQSPIF_CTRLBUS_REG = OQSPIF_OQSPIF_CTRLBUS_REG_OSPIC_DIS_CS_Msk;
 
 	return status;
 }
@@ -84,12 +84,12 @@ static __ramfunc void qspic_wait_busy(void)
 
 static __ramfunc void qspic_automode_exit(void)
 {
-	QSPIC->QSPIC_CTRLMODE_REG &= ~QSPIC_QSPIC_CTRLMODE_REG_QSPIC_AUTO_MD_Msk;
-	QSPIC->QSPIC_CTRLBUS_REG = QSPIC_QSPIC_CTRLBUS_REG_QSPIC_SET_SINGLE_Msk;
-	QSPIC->QSPIC_CTRLBUS_REG = QSPIC_QSPIC_CTRLBUS_REG_QSPIC_EN_CS_Msk;
+	OQSPIF->OQSPIF_CTRLMODE_REG &= ~OQSPIF_OQSPIF_CTRLMODE_REG_OSPIC_AUTO_MD_Msk;
+	OQSPIF->OQSPIF_CTRLBUS_REG = OQSPIF_OQSPIF_CTRLBUS_REG_OSPIC_SET_SINGLE_Msk;
+	OQSPIF->OQSPIF_CTRLBUS_REG = OQSPIF_OQSPIF_CTRLBUS_REG_OSPIC_EN_CS_Msk;
 	qspic_data_write8(0xff);
 	qspic_data_write8(0xff);
-	QSPIC->QSPIC_CTRLBUS_REG = QSPIC_QSPIC_CTRLBUS_REG_QSPIC_DIS_CS_Msk;
+	OQSPIF->OQSPIF_CTRLBUS_REG = OQSPIF_OQSPIF_CTRLBUS_REG_OSPIC_DIS_CS_Msk;
 }
 
 static __ramfunc void qspic_write_enable(void)
@@ -97,9 +97,9 @@ static __ramfunc void qspic_write_enable(void)
 	uint8_t status;
 
 	do {
-		QSPIC->QSPIC_CTRLBUS_REG = QSPIC_QSPIC_CTRLBUS_REG_QSPIC_EN_CS_Msk;
+		OQSPIF->OQSPIF_CTRLBUS_REG = OQSPIF_OQSPIF_CTRLBUS_REG_OSPIC_EN_CS_Msk;
 		qspic_data_write8(0x06);
-		QSPIC->QSPIC_CTRLBUS_REG = QSPIC_QSPIC_CTRLBUS_REG_QSPIC_DIS_CS_Msk;
+		OQSPIF->OQSPIF_CTRLBUS_REG = OQSPIF_OQSPIF_CTRLBUS_REG_OSPIC_DIS_CS_Msk;
 
 		do {
 			status = qspic_read_status();
@@ -115,7 +115,7 @@ static __ramfunc size_t qspic_write_page(uint32_t address, const uint8_t *data, 
 	size = MIN(size, FLASH_PAGE_SIZE - (address & (FLASH_PAGE_SIZE - 1)));
 	written = size;
 
-	QSPIC->QSPIC_CTRLBUS_REG = QSPIC_QSPIC_CTRLBUS_REG_QSPIC_EN_CS_Msk;
+	OQSPIF->OQSPIF_CTRLBUS_REG = OQSPIF_OQSPIF_CTRLBUS_REG_OSPIC_EN_CS_Msk;
 
 	address = sys_cpu_to_be32(address);
 	qspic_data_write32(address | 0x02);
@@ -132,7 +132,7 @@ static __ramfunc size_t qspic_write_page(uint32_t address, const uint8_t *data, 
 		size--;
 	}
 
-	QSPIC->QSPIC_CTRLBUS_REG = QSPIC_QSPIC_CTRLBUS_REG_QSPIC_DIS_CS_Msk;
+	OQSPIF->OQSPIF_CTRLBUS_REG = OQSPIF_OQSPIF_CTRLBUS_REG_OSPIC_DIS_CS_Msk;
 
 	return written;
 }
@@ -188,7 +188,9 @@ static __ramfunc int flash_smartbond_write(const struct device *dev,
 
 	key = irq_lock();
 
-	ctrlmode = QSPIC->QSPIC_CTRLMODE_REG;
+	#ifdef CONFIG_SOC_SERIES_DA1470X
+	ctrlmode = OQSPIF->OQSPIF_CTRLMODE_REG;
+	#endif
 	qspic_automode_exit();
 	qspic_wait_busy();
 
@@ -200,7 +202,7 @@ static __ramfunc int flash_smartbond_write(const struct device *dev,
 	#endif
 
 	#ifdef CONFIG_SOC_SERIES_DA1470X
-	QSPIC->QSPIC_CTRLMODE_REG = ctrlmode;
+	OQSPIF->OQSPIF_CTRLMODE_REG = ctrlmode;
 	CRG_TOP->SYS_CTRL_REG &= ~CRG_TOP_SYS_CTRL_REG_CACHERAM_MUX_Msk;
 	CRG_TOP->SYS_CTRL_REG |= CRG_TOP_SYS_CTRL_REG_CACHERAM_MUX_Msk;
 
@@ -209,7 +211,6 @@ static __ramfunc int flash_smartbond_write(const struct device *dev,
 
 
 	irq_unlock(key);
-
 	return 0;
 }
 
@@ -235,43 +236,38 @@ static __ramfunc int flash_smartbond_erase(const struct device *dev, off_t offse
 	if (!size) {
 		return 0;
 	}
-
 	key = irq_lock();
 
-	ctrlmode = QSPIC->QSPIC_CTRLMODE_REG;
+	ctrlmode = OQSPIF->OQSPIF_CTRLMODE_REG;
 	qspic_automode_exit();
 	qspic_wait_busy();
-
+	
 	while (size) {
 		qspic_write_enable();
 
-		QSPIC->QSPIC_CTRLBUS_REG = QSPIC_QSPIC_CTRLBUS_REG_QSPIC_EN_CS_Msk;
+		OQSPIF->OQSPIF_CTRLBUS_REG = OQSPIF_OQSPIF_CTRLBUS_REG_OSPIC_EN_CS_Msk;
 
 		address = sys_cpu_to_be32(offset);
 		qspic_data_write32(address | 0x20);
-		QSPIC->QSPIC_CTRLBUS_REG = QSPIC_QSPIC_CTRLBUS_REG_QSPIC_DIS_CS_Msk;
+		OQSPIF->OQSPIF_CTRLBUS_REG = OQSPIF_OQSPIF_CTRLBUS_REG_OSPIC_DIS_CS_Msk;
 
 		qspic_wait_busy();
 
 		offset += FLASH_ERASE_SIZE;
 		size -= FLASH_ERASE_SIZE;
 	}
-
-	QSPIC->QSPIC_CTRLMODE_REG = ctrlmode;
+	OQSPIF->OQSPIF_CTRLMODE_REG = ctrlmode;
 	
 	#ifdef CONFIG_SOC_SERIES_DA1469X
 	CACHE->CACHE_CTRL1_REG |= CACHE_CACHE_CTRL1_REG_CACHE_FLUSH_Msk;
 	#endif
-
+	
 	#ifdef CONFIG_SOC_SERIES_DA1470X
-	QSPIC->QSPIC_CTRLMODE_REG = ctrlmode;
 	CRG_TOP->SYS_CTRL_REG &= ~CRG_TOP_SYS_CTRL_REG_CACHERAM_MUX_Msk;
 	CRG_TOP->SYS_CTRL_REG |= CRG_TOP_SYS_CTRL_REG_CACHERAM_MUX_Msk;
-
 	CACHE->CACHE_CTRL2_REG &= ~CACHE_CACHE_CTRL2_REG_CACHE_FLUSHED_Msk;
 	#endif
 	irq_unlock(key);
-
 	return 0;
 }
 

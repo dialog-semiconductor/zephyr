@@ -58,19 +58,19 @@
 
 		boot_partition: partition@3400 {
 			label = "mcuboot";
-			reg = <0x000003400 0x00009c00>;
+			reg = <0x000003400 0x0000c000>; //A220
 		};
-		slot0_partition: partition@d000 {
+		slot0_partition: partition@10000 {
 			label = "image-0";
-			reg = <0x0000d000 0x00076000>;
+			reg = <0x00010000 0x00076000>;
 		};
-		slot1_partition: partition@81000 {
+		slot1_partition: partition@86000 {
 			label = "image-1";
-			reg = <0x00081000 0x00076000>;
+			reg = <0x00086000 0x00076000>;
 		};
-		storage_partition: partition@f9000 {
+		storage_partition: partition@fc000 {
 			label = "storage";
-			reg = <0x000f9000 0x00008000>;
+			reg = <0x000fc000 0x00008000>;
 		};
 	};
 };
