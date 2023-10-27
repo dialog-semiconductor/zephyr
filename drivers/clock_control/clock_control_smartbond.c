@@ -11,6 +11,10 @@
 #include <zephyr/drivers/clock_control/smartbond_clock_control.h>
 #include <zephyr/logging/log.h>
 #include <da1469x_clock.h>
+#if defined(CONFIG_BT)
+#include <shm.h>
+#endif
+#include <zephyr/drivers/regulator.h>
 
 LOG_MODULE_REGISTER(clock_control, CONFIG_CLOCK_CONTROL_LOG_LEVEL);
 
@@ -142,6 +146,10 @@ static inline int smartbond_clock_control_on(const struct device *dev,
 				da1469x_clock_sys_xtal32m_enable();
 				da1469x_clock_sys_xtal32m_wait_to_settle();
 			}
+#if CONFIG_REGULATOR_DA1469X
+			regulator_set_voltage(DEVICE_DT_GET(DT_NODELABEL(vdd)),
+					      1200000, 1200000);
+#endif
 			da1469x_clock_sys_pll_enable();
 		}
 		break;
@@ -196,6 +204,11 @@ static inline int smartbond_clock_control_off(const struct device *dev,
 		break;
 	case SMARTBOND_CLK_PLL96M:
 		da1469x_clock_sys_pll_disable();
+#if CONFIG_REGULATOR_DA1469X
+		regulator_set_voltage(DEVICE_DT_GET(DT_NODELABEL(vdd)),
+				      DT_PROP(DT_NODELABEL(vdd), regulator_init_microvolt),
+				      DT_PROP(DT_NODELABEL(vdd), regulator_init_microvolt));
+#endif
 		break;
 	default:
 		return -ENOTSUP;
@@ -463,6 +476,6 @@ DEVICE_DT_DEFINE(DT_NODELABEL(osc),
 		 &smartbond_clocks_init,
 		 NULL,
 		 NULL, NULL,
-		 PRE_KERNEL_1,
+		 PRE_KERNEL_2,
 		 CONFIG_CLOCK_CONTROL_INIT_PRIORITY,
 		 &smartbond_clock_control_api);
