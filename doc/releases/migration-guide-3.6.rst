@@ -136,6 +136,45 @@ Device Drivers and Device Tree
     :dtcompatible:`zephyr,native-linux-can`.
   * The main Kconfig option was renamed from ``CONFIG_CAN_NATIVE_POSIX_LINUX`` to
     :kconfig:option:`CONFIG_CAN_NATIVE_LINUX`.
+* ILI9XXX based displays now use the MIPI DBI driver class. These displays
+  must now be declared within a MIPI DBI driver wrapper device, which will
+  manage interfacing with the display. For an example, see below:
+
+  .. code-block:: devicetree
+
+    /* Legacy ILI9XXX display definition */
+    &spi2 {
+        ili9340: ili9340@0 {
+            compatible = "ilitek,ili9340";
+            reg = <0>;
+            spi-max-frequency = <32000000>;
+            reset-gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
+            cmd-data-gpios = <&gpio0 12 GPIO_ACTIVE_LOW>;
+            rotation = <270>;
+            width = <320>;
+            height = <240>;
+        };
+    };
+
+    /* New display definition with MIPI DBI device */
+
+    mipi_dbi {
+        compatible = "zephyr,mipi-dbi-spi";
+        reset-gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
+        dc-gpios = <&gpio0 12 GPIO_ACTIVE_LOW>;
+        spi-dev = <&spi2>;
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        ili9340: ili9340@0 {
+            compatible = "ilitek,ili9340";
+            reg = <0>;
+            spi-max-frequency = <32000000>;
+            rotation = <270>;
+            width = <320>;
+            height = <240>;
+        };
+    };
 
 Power Management
 ================
