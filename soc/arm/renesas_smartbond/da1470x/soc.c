@@ -42,14 +42,19 @@ static uint32_t z_renesas_cache_configured;
 
 void sys_arch_reboot(int type)
 {
-	ARG_UNUSED(type);
-
-	#if defined(CONFIG_BOOTLOADER_MCUBOOT)
-	z_renesas_cache_configured = 0;
-	#endif
-	CRG_TOP->SYS_CTRL_REG &= ~CRG_TOP_SYS_CTRL_REG_REMAP_ADR0_Msk;
-	CRG_TOP->SYS_CTRL_REG &= ~CRG_TOP_SYS_CTRL_REG_REMAP_INTVECT_Msk;
-	CRG_TOP->SYS_CTRL_REG |= CRG_TOP_SYS_CTRL_REG_SW_RESET_Msk;
+	// If a cold system reboot is requested perform a software reset.
+	if (type)
+	{
+		// If using the MCUBOOT bootloader, reset cache configuration.
+		#if defined(CONFIG_BOOTLOADER_MCUBOOT)
+			z_renesas_cache_configured = 0;
+		#endif
+		CRG_TOP->SYS_CTRL_REG &= ~CRG_TOP_SYS_CTRL_REG_REMAP_ADR0_Msk;
+		CRG_TOP->SYS_CTRL_REG &= ~CRG_TOP_SYS_CTRL_REG_REMAP_INTVECT_Msk;
+		CRG_TOP->SYS_CTRL_REG |= CRG_TOP_SYS_CTRL_REG_SW_RESET_Msk;
+	}
+	// If a cold reboot was not requested, perform a standard system reset.
+	NVIC_SystemReset();
 }
 
 #if defined(CONFIG_BOOTLOADER_MCUBOOT)
