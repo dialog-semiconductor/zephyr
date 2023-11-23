@@ -1,0 +1,54 @@
+# Copyright (c) 2023 Renesas Electronics Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+include: [base.yaml, pinctrl-device.yaml]
+
+description: Renesas Smartbond(tm) MIPI DBI Host
+
+compatible: "renesas,smartbond-mipi-dbi"
+
+properties:
+  reg:
+    required: true
+
+  interrupts:
+    required: true
+
+  "#address-cells":
+    required: true
+    const: 1
+  "#size-cells":
+    required: true
+    const: 0
+
+  reset-gpios:
+    type: phandle-array
+    description: |
+      Reset GPIO pin. Used to reset the display during initialization.
+
+  te-enable:
+    type: boolean
+    description: |
+      Boolean to indicate whether the tearing effect (TE) signal is available or not.
+
+  te-inversion:
+    type: boolean
+    description: |
+      Boolean to apply an inversion on the TE signal that triggers the MIPI DBI controller.
+
+  dma-prefetch:
+    type: boolean
+    description: |
+      Host controller will wait for at least the specified number of bytes before triggering
+      a single update. The driver implementation will automatically calculate the max. number
+      of bytes that can be prefetched. The prefecth mechanism should be enabled when the frame
+      buffer(s) is stored in an external medium, e.g. PSRAM, that introduces delays during
+      pixels fetching.
+
+  layer-format:
+    type: int
+    required: true
+    description: |
+      Input color format. This color format should describe the frame buffer contents's color mode.
+      The host controller is capable of performing on-the-fly color conversion.
+      See dt-bindings/mipi-dbi/smartbond_mipi_dbi.h for a list.

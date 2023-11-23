@@ -55,4 +55,19 @@
 			input-enable;
 		};
 	};
+
+	mipi_dbi_controller_default: mipi_dbi_controller_default {
+		group1 {
+			pinmux = <SMARTBOND_PINMUX(LCD_SPI_DC, 0, 24)>,
+				<SMARTBOND_PINMUX(LCD_SPI_DO, 0, 25)>,
+				<SMARTBOND_PINMUX(LCD_SPI_CLK, 0, 26)>,
+				<SMARTBOND_PINMUX(LCD_SPI_EN, 0, 27)>;
+				output-enable;
+		};
+		group2 {
+			/* TE signal - mapped on fixed positions */
+			pinmux = <SMARTBOND_PINMUX(LCD, 1, 22)>;
+			input-enable;
+		};
+	};
 };
