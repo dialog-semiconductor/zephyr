@@ -8,4 +8,24 @@ if BOARD_DA1469X_DK_PRO
 config BOARD
 	default "da1469x_dk_pro"
 
+if LVGL
+
+config LV_Z_VDB_ALIGN
+	default 4
+
+config LV_Z_BITS_PER_PIXEL
+	default 16
+
+endif # LVGL
+
+if INPUT
+
+config INPUT_FT5336_INTERRUPT
+	default y
+
+config LV_Z_POINTER_INPUT_MSGQ_COUNT
+	default 70
+
+endif # INPUT
+
 endif # BOARD_DA1469X_DK_PRO
