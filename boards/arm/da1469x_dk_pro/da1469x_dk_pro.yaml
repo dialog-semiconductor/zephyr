@@ -18,4 +18,5 @@ supported:
   - rtc
   - crypto
   - dma
+  - mipi_dbi
 vendor: renesas

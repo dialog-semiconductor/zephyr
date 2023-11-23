@@ -300,6 +300,15 @@
 			status = "okay";
 		};
 
+		mipi_dbi: lcdc@30030000 {
+			compatible = "renesas,smartbond-mipi-dbi";
+			reg = <0x30030000 0x18C>;
+			interrupts = <32 0>;
+			status = "disabled";
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
 		i2c: i2c@50020600 {
 			compatible = "renesas,smartbond-i2c";
 			#address-cells = <1>;
