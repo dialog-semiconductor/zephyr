@@ -1,0 +1,44 @@
+/*
+ * Copyright (c) 2023 Renesas Electronics Corporation
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+ #include <zephyr/dt-bindings/mipi_dbi/smartbond_mipi_dbi.h>
+ #include <zephyr/dt-bindings/display/ili9xxx.h>
+ #include <zephyr/dt-bindings/gpio/gpio.h>
+
+ / {
+    chosen {
+        zephyr,display = &ili9340;
+    };
+ };
+
+ / {
+	aliases {
+		accel0 = &bmi_i2c;
+	};
+};
+
+&mipi_dbi {
+    reset-gpios = <&gpio0 30 GPIO_ACTIVE_LOW>;
+    layer-format = <SMARTBOND_MIPI_DBI_L0_RGB565>;
+    status = "okay";
+
+    ili9340: ili9340@0 {
+        compatible = "ilitek,ili9340";
+        spi-max-frequency = <16000000>;
+        status = "okay";
+        reg = <0>;
+        width = <240>;
+        height = <320>;
+        pixel-format = <ILI9XXX_PIXEL_FORMAT_RGB565>;
+    };
+};
+
+&i2c2 {
+	bmi_i2c: bmi@68 {
+		compatible = "bosch,bmi160";
+		reg = <0x68>;
+	};
+};
