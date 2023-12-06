@@ -7,9 +7,9 @@
 #include <zephyr/init.h>
 #include <zephyr/linker/linker-defs.h>
 #include <string.h>
-#include <zephyr/arch/arm/aarch32/cortex_m/cmsis.h>
-#include <zephyr/arch/arm/aarch32/nmi.h>
-#include <zephyr/arch/common/sys_io.h>
+// #include <zephyr/arch/arm/aarch32/cortex_m/cmsis.h>
+// #include <zephyr/arch/arm/aarch32/nmi.h>
+// #include <zephyr/arch/common/sys_io.h>
 #include <DA1469xAB.h>
 #include <da1469x_clock.h>
 #include <da1469x_otp.h>
