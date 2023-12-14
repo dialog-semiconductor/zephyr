@@ -258,6 +258,7 @@ static int renesas_da1469x_init(void)
 	 * respective drivers.
 	 */
 	da1469x_pd_acquire(MCU_PD_DOMAIN_COM);
+	da1469x_pd_acquire(MCU_PD_DOMAIN_PER);
 
 	da1469x_clock_sys_xtal32m_init();
 	da1469x_clock_sys_xtal32m_enable();
