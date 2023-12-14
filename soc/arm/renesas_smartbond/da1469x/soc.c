@@ -6,6 +6,7 @@
 
 #include <zephyr/init.h>
 #include <zephyr/linker/linker-defs.h>
+#include <zephyr/logging/log.h>
 #include <string.h>
 // #include <zephyr/arch/arm/aarch32/cortex_m/cmsis.h>
 // #include <zephyr/arch/arm/aarch32/nmi.h>
@@ -17,6 +18,9 @@
 #include <da1469x_pdc.h>
 #include <da1469x_trimv.h>
 #include <cmsis_core.h>
+
+#define LOG_LEVEL CONFIG_SOC_LOG_LEVEL
+LOG_MODULE_REGISTER(soc);
 
 #define REMAP_ADR0_QSPI           0x2
 
@@ -34,11 +38,51 @@
 static uint32_t z_renesas_cache_configured;
 #endif
 
+#if defined(CONFIG_PM)
+struct dcdc_regs {
+	uint32_t v18;
+	uint32_t v18p;
+	uint32_t vdd;
+	uint32_t v14;
+	uint32_t ctrl1;
+};
+
+static struct dcdc_regs dcdc_state;
+#endif
+
 void sys_arch_reboot(int type)
 {
 	ARG_UNUSED(type);
 
 	NVIC_SystemReset();
+}
+
+void z_smartbond_restore_dcdc_state(void)
+{
+	/*
+	 * Enabling DCDC while VBAT is below 2.5 V renders system unstable even
+	 * if VBUS is available. Enable DCDC only if VBAT is above minimal value.
+	 */
+	if (CRG_TOP->ANA_STATUS_REG & CRG_TOP_ANA_STATUS_REG_COMP_VBAT_HIGH_Msk) {
+#if defined(CONFIG_PM)
+		DCDC->DCDC_V18_REG = dcdc_state.v18;
+		DCDC->DCDC_V18P_REG = dcdc_state.v18p;
+		DCDC->DCDC_VDD_REG = dcdc_state.vdd;
+		DCDC->DCDC_V14_REG = dcdc_state.v14;
+		DCDC->DCDC_CTRL1_REG = dcdc_state.ctrl1;
+#endif
+	}
+}
+
+void z_smartbond_store_dcdc_state(void)
+{
+#if defined(CONFIG_PM)
+	dcdc_state.v18 = DCDC->DCDC_V18_REG;
+	dcdc_state.v18p = DCDC->DCDC_V18P_REG;
+	dcdc_state.vdd = DCDC->DCDC_VDD_REG;
+	dcdc_state.v14 = DCDC->DCDC_V14_REG;
+	dcdc_state.ctrl1 = DCDC->DCDC_CTRL1_REG;
+#endif
 }
 
 static inline void write32_mask(uint32_t mask, uint32_t data, mem_addr_t addr)
@@ -146,8 +190,23 @@ static void z_renesas_configure_cache(void)
 
 void z_arm_platform_init(void)
 {
+#if defined(CONFIG_PM)
+	uint32_t *ivt;
+#endif
+
 #if defined(CONFIG_BOOTLOADER_MCUBOOT)
 	z_renesas_configure_cache();
+#endif
+
+#if defined(CONFIG_PM)
+	/* IVT is always placed in reserved space at the start of RAM which
+	 * is then remapped to 0x0 and retained. Generic reset handler is
+	 * changed to custom routine since next time ARM core is reset we
+	 * need to determine whether it was a regular reset or a wakeup from
+	 * extended sleep and ARM core state needs to be restored.
+	 */
+	ivt = (uint32_t *)_image_ram_start;
+	ivt[1] = (uint32_t)z_smartbond_wakeup_handler;
 #endif
 }
 
@@ -155,6 +214,7 @@ static int renesas_da1469x_init(void)
 {
 	/* Freeze watchdog until configured */
 	GPREG->SET_FREEZE_REG = GPREG_SET_FREEZE_REG_FRZ_SYS_WDOG_Msk;
+	SYS_WDOG->WATCHDOG_REG = SYS_WDOG_WATCHDOG_REG_WDOG_VAL_Msk;
 
 	/* Reset clock dividers to 0 */
 	CRG_TOP->CLK_AMBA_REG &= ~(CRG_TOP_CLK_AMBA_REG_HCLK_DIV_Msk |
@@ -166,6 +226,24 @@ static int renesas_da1469x_init(void)
 				 CRG_TOP_PMU_CTRL_REG_RADIO_SLEEP_Msk;
 	CRG_TOP->PMU_CTRL_REG &= ~CRG_TOP_PMU_CTRL_REG_SYS_SLEEP_Msk;
 
+#if defined(CONFIG_PM)
+	/* Enable cache retainability */
+	CRG_TOP->PMU_CTRL_REG |= CRG_TOP_PMU_CTRL_REG_RETAIN_CACHE_Msk;
+#endif
+
+	/*
+	 *	Due to crosstalk issues any power rail can potentially
+	 *	issue a fake event. This is typically observed upon
+	 *	switching power sources, that is DCDC <--> LDOs <--> Retention LDOs.
+	 */
+	CRG_TOP->BOD_CTRL_REG &= ~(CRG_TOP_BOD_CTRL_REG_BOD_V14_EN_Msk |
+				CRG_TOP_BOD_CTRL_REG_BOD_V18F_EN_Msk   |
+				CRG_TOP_BOD_CTRL_REG_BOD_VDD_EN_Msk    |
+				CRG_TOP_BOD_CTRL_REG_BOD_V18P_EN_Msk   |
+				CRG_TOP_BOD_CTRL_REG_BOD_V18_EN_Msk    |
+				CRG_TOP_BOD_CTRL_REG_BOD_V30_EN_Msk    |
+				CRG_TOP_BOD_CTRL_REG_BOD_VBAT_EN_Msk);
+
 	da1469x_pdc_reset();
 
 	da1469x_otp_init();
@@ -174,6 +252,11 @@ static int renesas_da1469x_init(void)
 	da1469x_pd_init();
 	da1469x_pd_acquire(MCU_PD_DOMAIN_SYS);
 	da1469x_pd_acquire(MCU_PD_DOMAIN_TIM);
+
+	/* Enable PD_COM for GPIO control. This reference is controlled by PM.
+	 * References for other peripherals in PD_COM are controlled by their
+	 * respective drivers.
+	 */
 	da1469x_pd_acquire(MCU_PD_DOMAIN_COM);
 
 	da1469x_clock_sys_xtal32m_init();

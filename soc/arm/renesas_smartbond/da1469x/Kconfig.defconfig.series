@@ -8,11 +8,21 @@ source "soc/arm/renesas_smartbond/da1469x/Kconfig.defconfig.da1469*"
 config SOC_SERIES
 	default "da1469x"
 
+config SMARTBOND_TIMER
+	default y if PM
+
+config CORTEX_M_SYSTICK
+	default n if SMARTBOND_TIMER
+
 config NUM_IRQS
 	default 40
 
 config SYS_CLOCK_HW_CYCLES_PER_SEC
-	default $(dt_node_int_prop_int,/cpus/cpu@0,clock-frequency)
+	default $(dt_node_int_prop_int,/cpus/cpu@0,clock-frequency) if CORTEX_M_SYSTICK
+	default 32768 if SMARTBOND_TIMER
+
+config SYS_CLOCK_TICKS_PER_SEC
+	default 32768 if SMARTBOND_TIMER
 
 config SRAM_VECTOR_TABLE
 	default y
@@ -25,8 +35,5 @@ config FLASH_BASE_ADDRESS
 
 config FLASH_LOAD_OFFSET
 	default 0x2400 if !USE_DT_CODE_PARTITION
-
-config PLATFORM_SPECIFIC_INIT
-	default y
 
 endif # SOC_SERIES_DA1469X
