@@ -45,6 +45,16 @@ void lvgl_wait_cb(lv_disp_drv_t *disp_drv)
 
 #endif /* CONFIG_LV_Z_FLUSH_THREAD */
 
+#ifdef CONFIG_LV_Z_AREA_X_ALIGNMENT_WIDTH
+void lvgl_rounder_cb(lv_disp_drv_t * disp_drv, lv_area_t * area)
+{
+	__ASSERT(POPCOUNT(CONFIG_LV_Z_AREA_X_ALIGNMENT_WIDTH) == 1, "Invalid X alignment width");
+
+	area->x1 &= ~(CONFIG_LV_Z_AREA_X_ALIGNMENT_WIDTH - 1);
+	area->x2 |= (CONFIG_LV_Z_AREA_X_ALIGNMENT_WIDTH - 1);
+}
+#endif
+
 int set_lvgl_rendering_cb(lv_disp_drv_t *disp_drv)
 {
 	int err = 0;
@@ -57,7 +67,11 @@ int set_lvgl_rendering_cb(lv_disp_drv_t *disp_drv)
 	switch (data->cap.current_pixel_format) {
 	case PIXEL_FORMAT_ARGB_8888:
 		disp_drv->flush_cb = lvgl_flush_cb_32bit;
+#ifdef CONFIG_LV_Z_AREA_X_ALIGNMENT_WIDTH
+		disp_drv->rounder_cb = lvgl_rounder_cb;
+#else
 		disp_drv->rounder_cb = NULL;
+#endif
 #ifdef CONFIG_LV_COLOR_DEPTH_32
 		disp_drv->set_px_cb = NULL;
 #else
@@ -66,13 +80,21 @@ int set_lvgl_rendering_cb(lv_disp_drv_t *disp_drv)
 		break;
 	case PIXEL_FORMAT_RGB_888:
 		disp_drv->flush_cb = lvgl_flush_cb_24bit;
+#ifdef CONFIG_LV_Z_AREA_X_ALIGNMENT_WIDTH
+		disp_drv->rounder_cb = lvgl_rounder_cb;
+#else
 		disp_drv->rounder_cb = NULL;
+#endif
 		disp_drv->set_px_cb = lvgl_set_px_cb_24bit;
 		break;
 	case PIXEL_FORMAT_RGB_565:
 	case PIXEL_FORMAT_BGR_565:
 		disp_drv->flush_cb = lvgl_flush_cb_16bit;
+#ifdef CONFIG_LV_Z_AREA_X_ALIGNMENT_WIDTH
+		disp_drv->rounder_cb = lvgl_rounder_cb;
+#else
 		disp_drv->rounder_cb = NULL;
+#endif
 #ifdef CONFIG_LV_COLOR_DEPTH_16
 		disp_drv->set_px_cb = NULL;
 #else

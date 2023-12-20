@@ -107,6 +107,13 @@ config LV_Z_FLUSH_THREAD_PRIO
 
 endif # LV_Z_FLUSH_THREAD
 
+config LV_Z_AREA_X_ALIGNMENT_WIDTH
+	int "Dirty area X alignment size"
+	help
+	  Number of pixels, X axis should be rounded to. Should be used to override
+	  the dirty area before a frame update to meet device/controller requirements.
+	  The value must be power of 2.
+
 rsource "Kconfig.memory"
 rsource "Kconfig.input"
 rsource "Kconfig.shell"
