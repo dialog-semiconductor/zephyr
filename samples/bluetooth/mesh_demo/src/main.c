@@ -263,6 +263,8 @@ void board_play(const char *str)
 	k_sem_give(&tune_sem);
 }
 
+
+
 int main(void)
 {
 	int err;
@@ -285,8 +287,8 @@ int main(void)
 	}
 
 	while (1) {
-		k_sem_take(&tune_sem, K_FOREVER);
-		board_play_tune(tune_str);
+		k_msleep(5000);
+		board_button_1_pressed();
 	}
 
 	return 0;

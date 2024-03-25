@@ -133,3 +133,32 @@ gatt_indicate:
 		}
 	}
 }
+
+void hts_indicate_temp(double temperature)
+{
+	/* Temperature measurements simulation */
+	struct sensor_value temp_value;
+		static uint8_t htm[5];
+		uint32_t mantissa;
+		uint8_t exponent;
+		int r;
+
+		printf("temperature is %gC\n", temperature);
+
+		mantissa = (uint32_t)(temperature * 100);
+		exponent = (uint8_t)-2;
+
+		htm[0] = 0; /* temperature in celsius */
+		sys_put_le24(mantissa, (uint8_t *)&htm[1]);
+		htm[4] = exponent;
+
+		ind_params.attr = &hts_svc.attrs[2];
+		ind_params.func = indicate_cb;
+		ind_params.destroy = indicate_destroy;
+		ind_params.data = &htm;
+		ind_params.len = sizeof(htm);
+
+		if (bt_gatt_indicate(NULL, &ind_params) == 0) {
+			indicating = 1U;
+		}
+}
