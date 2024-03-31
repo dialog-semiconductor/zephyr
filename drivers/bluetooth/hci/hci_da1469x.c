@@ -25,6 +25,9 @@
 #define H4_EVT  0x04
 #define H4_ISO  0x05
 
+#define BT_HCI_EVT_FLAG_RECV_PRIO BIT(0)
+#define BT_HCI_EVT_FLAG_RECV      BIT(1)
+
 static struct {
 	struct net_buf *buf;
 	struct k_fifo   fifo;
@@ -53,6 +56,36 @@ static struct {
 #include <zephyr/sys/byteorder.h>
 
 LOG_MODULE_REGISTER(hci_da1469x);
+
+/** @brief Get HCI event flags.
+ *
+ * Helper for the HCI driver to get HCI event flags that describes rules that.
+ * must be followed.
+ *
+ * @param evt HCI event code.
+ *
+ * @return HCI event flags for the specified event.
+ */
+static inline uint8_t bt_hci_evt_get_flags(uint8_t evt)
+{
+	switch (evt) {
+	case BT_HCI_EVT_DISCONN_COMPLETE:
+		return BT_HCI_EVT_FLAG_RECV | BT_HCI_EVT_FLAG_RECV_PRIO;
+		/* fallthrough */
+#if defined(CONFIG_BT_CONN) || defined(CONFIG_BT_ISO)
+	case BT_HCI_EVT_NUM_COMPLETED_PACKETS:
+#if defined(CONFIG_BT_CONN)
+	case BT_HCI_EVT_DATA_BUF_OVERFLOW:
+		__fallthrough;
+#endif /* defined(CONFIG_BT_CONN) */
+#endif /* CONFIG_BT_CONN ||  CONFIG_BT_ISO */
+	case BT_HCI_EVT_CMD_COMPLETE:
+	case BT_HCI_EVT_CMD_STATUS:
+		return BT_HCI_EVT_FLAG_RECV_PRIO;
+	default:
+		return BT_HCI_EVT_FLAG_RECV;
+	}
+}
 
 static K_KERNEL_STACK_DEFINE(rx_thread_stack, CONFIG_BT_RX_STACK_SIZE);
 static struct k_thread rx_thread_data;
@@ -253,6 +286,22 @@ static size_t h4_discard(size_t len)
 	return err;
 }
 
+int bt_recv_prio(struct net_buf *buf)
+{
+	if (bt_buf_get_type(buf) == BT_BUF_EVT) {
+		struct bt_hci_evt_hdr *hdr = (void *)buf->data;
+		uint8_t evt_flags = bt_hci_evt_get_flags(hdr->evt);
+
+		if ((evt_flags & BT_HCI_EVT_FLAG_RECV_PRIO) &&
+		    (evt_flags & BT_HCI_EVT_FLAG_RECV)) {
+			/* Avoid queuing the event twice */
+			return 0;
+		}
+	}
+
+	return bt_recv(buf);
+}
+
 static inline void read_payload(void)
 {
 	struct net_buf *buf;
@@ -318,8 +367,7 @@ static inline void read_payload(void)
 
 	reset_rx();
 
-	if (IS_ENABLED(CONFIG_BT_RECV_BLOCKING) &&
-	    (evt_flags & BT_HCI_EVT_FLAG_RECV_PRIO)) {
+	if ((evt_flags & BT_HCI_EVT_FLAG_RECV_PRIO)) {
 		LOG_DBG("Calling bt_recv_prio(%p)", buf);
 		bt_recv_prio(buf);
 	}
