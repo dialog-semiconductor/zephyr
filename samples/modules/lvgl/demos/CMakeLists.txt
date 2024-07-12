@@ -83,8 +83,15 @@ target_sources_ifdef(CONFIG_LV_USE_DEMO_STRESS app PRIVATE
 )
 
 target_sources_ifdef(CONFIG_LV_USE_DEMO_WIDGETS app PRIVATE
-    ${LVGL_DIR}/demos/widgets/assets/img_clothes.c
-    ${LVGL_DIR}/demos/widgets/assets/img_demo_widgets_avatar.c
     ${LVGL_DIR}/demos/widgets/assets/img_lvgl_logo.c
     ${LVGL_DIR}/demos/widgets/lv_demo_widgets.c
+    ${LVGL_DIR}/demos/widgets/assets/renesas_logo_105_105.c
+    ${LVGL_DIR}/demos/widgets/assets/da1469x_module_54_45.c
+    ${LVGL_DIR}/demos/widgets/assets/da1470x_devkit_54_42.c
+    ${LVGL_DIR}/demos/widgets/assets/pro_devkit_54_43.c
+    ${LVGL_DIR}/demos/widgets/assets/da14592_devkit_54_41.c
+    ${LVGL_DIR}/demos/widgets/assets/usb_kit_54_17.c
+    ${LVGL_DIR}/demos/widgets/assets/zephyr_logo.c
+    ${LVGL_DIR}/demos/widgets/assets/temp_hum.c
+    ${LVGL_DIR}/demos/widgets/assets/led.c
 )

@@ -19,6 +19,33 @@
 		invert-x;
 		invert-y;
 	};
+
+	aliases {
+        lvglsensor = &hs3001;
+    };
+};
+
+&i2c {
+    clock-frequency = <400000>;
+	status = "okay";
+
+    hs3001: hs3001@44 {
+        compatible = "renesas,hs300x";
+        status = "okay";
+        reg = <0x44>;
+        friendly-name = "HS3001 PMOD";
+    };
+
+    // adxl345: adxl345@1d {
+    //     compatible = "adi,adxl345";
+    //     status = "okay";
+    //     reg = <0x1d>;
+    //     friendly-name = "ADXL345";
+    // };
+};
+
+&rtc {
+	status = "okay";
 };
 
 &i2c2 {

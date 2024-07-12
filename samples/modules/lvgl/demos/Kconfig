@@ -3,7 +3,7 @@
 
 choice LV_Z_DEMO
 	prompt "LVGL demo to build"
-	default LV_Z_DEMO_MUSIC
+	default LV_Z_DEMO_WIDGETS
 	help
 	  Demo application to build.
 
@@ -32,5 +32,47 @@ config LV_Z_DEMO_WIDGETS
 	  Build stress testing demo application.
 
 endchoice
+
+
+
+config LV_USE_ADXL_CUSTOM_TAB
+	bool "ADXL Custom TAB"
+	default n
+	help
+	  ADXL custom tab.
+
+config LV_USE_RGB_CUSTOM_TAB
+	bool "RGB Custom TAB"
+	default n
+	help
+	  RGB custom tab.
+
+config BT_DEVICE_NAME
+	default "Renesas SmartBond Zephyr Demo" if LV_USE_RGB_CUSTOM_TAB
+	default "Renesas Booth XX - Aisle X" if LV_USE_ADXL_CUSTOM_TAB
+
+if LV_Z_DEMO_WIDGETS
+
+choice LV_Z_DEMO_WIDGETS_CUSTOM_TAB
+	prompt "LVGL custom window tab"
+	default LV_Z_DEMO_RGB_CUSTOM_TAB
+	help
+	  Select the custom window to be created.
+
+config LV_Z_DEMO_ADXL_CUSTOM_TAB
+	bool "ADXL Custom Window"
+	select LV_USE_ADXL_CUSTOM_TAB
+	help
+	  Select the ADXL custom tab.
+
+config LV_Z_DEMO_RGB_CUSTOM_TAB
+	bool "RGB Custom WIndow"
+	select LV_USE_RGB_CUSTOM_TAB
+	help
+	  Select the RGB custom tab.
+
+endchoice
+
+endif # LV_Z_DEMO_WIDGETS
 
 source "Kconfig.zephyr"
