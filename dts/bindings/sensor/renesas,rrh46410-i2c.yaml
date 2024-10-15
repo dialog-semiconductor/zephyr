@@ -1,0 +1,17 @@
+#
+# Copyright (c) 2024 Renesas
+#
+# SPDX-License-Identifier: Apache-2.0
+
+description: Renesas RRH46410 TVOC sensor
+
+compatible: "renesas,rrh46410"
+
+include: [i2c-device.yaml, "renesas,rrh46410.yaml"]
+
+#properties:
+#  reset-gpios:
+#    type: phandle-array
+#    description: |
+#      The RESETn pin is asserted to disable the sensor causing a hard
+#      reset.  The sensor receives this as an active-low signal.
