@@ -1217,3 +1217,9 @@ test_i2c_tmag3001: tmag3001@a8 {
 	operation-mode = <TMAG5273_DT_OPER_MODE_CONTINUOUS>;
 	angle-magnitude-axis = <TMAG5273_DT_ANGLE_MAG_XY>;
 };
+
+test_i2c_rrh46410: rrh46410@a9 {
+	compatible = "renesas,rrh46410";
+	reg = <0xa9>;
+	reset-gpios = <&test_gpio 0 0>;
+};
