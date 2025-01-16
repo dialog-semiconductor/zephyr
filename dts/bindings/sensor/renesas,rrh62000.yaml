@@ -1,0 +1,10 @@
+#
+# Copyright (c) 2024
+#
+# SPDX-License-Identifier: Apache-2.0
+
+description: Renesas RRH62000 All-in-One Integrated Sensor Module for PM2.5, RHT, TVOC, and eCO2 Detection
+
+compatible: "renesas,rrh62000"
+
+include: [sensor-device.yaml, uart-device.yaml]

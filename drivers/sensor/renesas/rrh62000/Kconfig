@@ -1,0 +1,11 @@
+# RRH62000 All-in-One Integrated Sensor Module for PM2.5, RHT, TVOC, and eCO2 Detection
+# SPDX-License-Identifier: Apache-2.0
+
+menuconfig RRH62000
+	bool "RRH62000 sensor"
+	default y
+	depends on DT_HAS_RENESAS_RRH62000_ENABLED
+	depends on UART_INTERRUPT_DRIVEN
+	
+	help
+	  Enable driver for RRH62000 All-in-One Integrated Sensor Module for PM2.5, RHT, TVOC, and eCO2 Detection.
